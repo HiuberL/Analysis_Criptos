@@ -174,7 +174,7 @@ export const FavoritesSimulator: React.FC = () => {
                   <div className={styles.cardTop}>
                     <span className={styles.symbolName}>{symbol}</span>
                     <span className={styles.basePrice}>
-                      Mercado: {currentPrice > 0 ? `$${currentPrice.toFixed(4)}` : "Cargando..."}
+                      Mercado: {currentPrice > 0 ? `$${currentPrice.toFixed(8)}` : "Cargando..."}
                     </span>
                   </div>
 
@@ -187,16 +187,16 @@ export const FavoritesSimulator: React.FC = () => {
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Precio de Entrada:</span>
                         <span className={styles.infoValue}>
-                          {entryPrice > 0 ? `$${entryPrice.toFixed(4)}` : '---'}
+                          {entryPrice > 0 ? `$${entryPrice.toFixed(8)}` : '---'}
                         </span>
                       </div>
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Inversión Fija:</span>
-                        <span className={styles.infoValue}>${investment.toFixed(2)}</span>
+                        <span className={styles.infoValue}>${investment.toFixed(8)}</span>
                       </div>
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Valoración Manual:</span>
-                        <span className={styles.infoValue}>${currentAssetValue.toFixed(2)}</span>
+                        <span className={styles.infoValue}>${currentAssetValue.toFixed(8)}</span>
                       </div>
 
                       <hr className={styles.divider} />
