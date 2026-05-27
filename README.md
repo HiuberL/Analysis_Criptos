@@ -12,7 +12,7 @@ Si bien aún no es un producto completo, poco a poco se irá mejorando según la
 |**Versión de Sistema:**| +10 x64 |
 
 ## ¿Qué debes de hacer antes de abrir el proyecto?
-Nada, por el momento... Solo debes abrir el archivo portable. Y listo, puedes ir revisando las criptos disponibles para tu ánalisis.
+Nada, por el momento... Solo debes abrir el archivo portable. Y listo, puedes ir revisando las criptos disponibles para tu ánalisis. [Descargar último Ejecutable](https://github.com/HiuberL/Analysis_Criptos/releases/tag/1.0.0)
 
 > **Atención**: Esta herramienta no busca ser un producto que prediga si vas a ganar o no, este producto te va a ayudar a realizar tu analisis y poder obtener ganancias escoladas.
 
