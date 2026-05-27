@@ -1,34 +1,31 @@
-# logic-binance
+# BINANCE MODULE - ANALISIS DE CRIPTOS
 
-An Electron application with React and TypeScript
+Este repositorio se creo como etapa de estudio, tanto de electron - react, como del mundo de las criptomonedas. Actualmente estoy fascinado por este mundo y me pareció muy interesante, crear un dashboard para poder entrenarme en el análisis de las criptomonedas.
 
-## Recommended IDE Setup
+Si bien aún no es un producto completo, poco a poco se irá mejorando según las necesidades que vea en sus comentarios.
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## Requerimientos del sistema
 
-## Project Setup
+|Tipo               | Valor   |
+|-------------------|---------|
+|**Sistema operativo:** | Windows |
+|**Versión de Sistema:**| +10 x64 |
 
-### Install
+## ¿Qué debes de hacer antes de abrir el proyecto?
+Nada, por el momento... Solo debes abrir el archivo portable. Y listo, puedes ir revisando las criptos disponibles para tu ánalisis.
 
-```bash
-$ npm install
-```
+> **Atención**: Esta herramienta no busca ser un producto que prediga si vas a ganar o no, este producto te va a ayudar a realizar tu analisis y poder obtener ganancias escoladas.
 
-### Development
+## ¿Necesitas que añada cambios?
+Puedes escribirme o dejarme un comentario con lo que requieras. 
 
-```bash
-$ npm run dev
-```
+Si te gusta esta herramienta, puedes apoyarme para seguir manteniéndola:
 
-### Build
+* **Binance Pay ID:** `391184197`
+* **Red BEP20 (USDT/BNB):** `0x567f5f5d65f61d42cdd7bce05748ae5bf35cdd3d`
 
-```bash
-# For windows
-$ npm run build:win
+<center>
+<img src="./resources/binance.jfif" width="180px" alt="Binance Pay QR"/>
+</center>
 
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
-```
+*¡Gracias por tu apoyo!* 🚀
