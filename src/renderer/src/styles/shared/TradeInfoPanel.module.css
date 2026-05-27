@@ -1,0 +1,35 @@
+.tradingRow {
+  display: flex;
+  justify-content: space-between; /* Precio izq, Niveles der */
+  align-items: center;
+  padding: 15px;
+  background-color: #1e2329;
+  border-radius: 8px;
+  gap: 20px; /* Espacio entre el precio y el bloque de 4 valores */
+}
+
+.entrySide {
+  flex: 0 0 auto; /* El precio no se estira ni se encoge */
+}
+
+.levelsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 columnas para los 4 valores */
+  gap: 10px; /* Espacio entre los 4 cuadraditos */
+}
+
+.levelBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #2b3139;
+  padding: 5px;
+  border-radius: 4px;
+  min-width: 200px; /* Asegura que no se aplasten */
+}
+
+.levelBox span { font-size: 10px; color: #848e9c; text-transform: uppercase; }
+.levelBox strong { font-size: 12px; }
+
+.slText { color: #f6465d; } /* Rojo */
+.tpText { color: #0ecb81; } /* Verde */

@@ -1,0 +1,109 @@
+/* src/renderer/src/assets/dashboard.css */
+
+/* Reseteo general */
+body {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #181a20;
+  color: #eaecef;
+  width: 100%;
+}
+
+/* --- Dashboard Principal --- */
+.dashboardContainer {
+  min-height: 100vh;
+  padding: 20px;
+  width: 100%;
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #2b3139;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoBadge {
+  background-color: #F0B90B;
+  color: #000;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+.searchInput {
+  background-color: #2b3139;
+  border: 1px solid #474f59;
+  border-radius: 4px;
+  color: #eaecef;
+  padding: 8px 12px;
+  width: 250px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #F0B90B;
+}
+
+.contentGrid {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  height: calc(100vh - 100px);
+}
+
+.containerModules{
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+.columnOne,
+.columnTwo {
+  flex: 1;
+}
+/* --- Panel de Análisis (Derecha) --- */
+.analysisPanel {
+  background-color: #1e2329;
+  border-radius: 8px;
+  border: 1px solid #2b3139;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #848e9c;
+  text-align: center;
+}
+
+.menuBar{
+  display: flex;
+  align-items: right;
+  text-align: right;
+  gap: 20px;
+  margin-right: 20px;
+  font-size: 20px;
+}
+.active{
+  color:#F0B90B;
+  font-style: italic;
+  text-decoration: none;
+
+}
+.inactive{
+  color:white;
+  font-style: italic;
+  text-decoration: none;
+}
