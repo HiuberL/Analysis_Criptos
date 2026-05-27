@@ -1,0 +1,39 @@
+.paginationControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #1e2329;
+  border-top: 1px solid #2b3139;
+  color: #eaecef;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.pageButton {
+  background-color: #2b3139;
+  border: 1px solid #474f59;
+  color: #eaecef;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  border-color: #F0B90B;
+  color: #F0B90B;
+}
+
+.pageButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  font-weight: 500;
+  color: #848e9c;
+}

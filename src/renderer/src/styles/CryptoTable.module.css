@@ -1,0 +1,89 @@
+/* src/renderer/src/assets/CryptoTable.module.css */
+
+.cryptoTableContainer {
+  background-color: #1e2329;
+  border-radius: 8px;
+  padding: 16px;
+  height: 85%;
+  overflow-y: auto;
+  border: 1px solid #2b3139;
+}
+
+.title {
+  color: #eaecef;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.cryptoTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.cryptoTable th {
+  border-bottom: 1px solid #2b3139;
+  color: #848e9c;
+  font-size: 12px;
+  padding-bottom: 8px;
+}
+
+.cryptoRow {
+  border-bottom: 1px solid #2b3139;
+  color: #eaecef;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cryptoRow:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.cryptoRow.selected {
+  color: #F0B90B;
+  background-color: rgba(240, 185, 11, 0.1);
+}
+
+.symbolCell {
+  font-weight: bold;
+}
+
+.baseAssetCell {
+  color: #848e9c;
+}
+
+.actionButton {
+  background-color: #2b3139;
+  color: #eaecef;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.cryptoRow.selected .actionButton {
+  background-color: #F0B90B;
+  color: #000;
+}
+.refreshButton{
+  background-color: #2b3139;
+  color: #eaecef;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold; 
+}
+.favorites{
+  background-color: #2b313900;
+  color: #d5c000;
+  border: none;
+  border-radius: 0px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
