@@ -1,27 +1,7 @@
+import { AnalysisResult, CandleData, PivotLevel, SupportResistanceLevels } from '@renderer/interfaces/indicators.interface';
 import { EMA, RSI, SMA, MACD, ATR } from 'technicalindicators';
 
-export interface CandleData {
-  time: number | string;
-  open: number | string;
-  high: number | string;
-  low: number | string;
-  close: number | string;
-  volume: number | string;
-}
 
-export interface AnalysisResult {
-  currentPrice: number;
-  lastPrice: number;
-  ema20: number;
-  ema50: number;
-  ema200: number;
-  rsi: number;
-  volume: number;
-  avgVolume: number;
-  bullishPercentage: number;
-  trend: 'Fuerte Alcista' | 'Alcista' | 'Neutral' | 'Bajista' | 'Fuerte Bajista';
-  atr: number; 
-}
 
 export const calculateTrend = (data: CandleData[]): AnalysisResult | null => {
   if (!data || data.length < 20) return null;
@@ -33,7 +13,6 @@ export const calculateTrend = (data: CandleData[]): AnalysisResult | null => {
 
   const last = (arr: number[]) => (arr && arr.length > 0 ? arr[arr.length - 1] : 0);
 
-  // Cálculos técnicos
   const rsiValues = RSI.calculate({ period: 14, values: closes });
   const ema20Values = EMA.calculate({ period: 20, values: closes });
   const ema50Values = data.length >= 50 ? EMA.calculate({ period: 50, values: closes }) : [];
@@ -66,7 +45,6 @@ export const calculateTrend = (data: CandleData[]): AnalysisResult | null => {
   const macd = last(macdValues);
   const currentAtr = last(atrValues);
 
-  // Sistema de puntuación
   let score = 50;
   if (currentPrice > cEma20) score += 10; else score -= 10;
   if (cEma50 > 0 && cEma200 > 0) {
@@ -91,7 +69,7 @@ export const calculateTrend = (data: CandleData[]): AnalysisResult | null => {
 
   return {
     currentPrice,
-    lastPrice: currentPrice, // Asignamos el valor aquí
+    lastPrice: currentPrice,
     ema20: cEma20,
     ema50: cEma50,
     ema200: cEma200,
@@ -102,4 +80,28 @@ export const calculateTrend = (data: CandleData[]): AnalysisResult | null => {
     trend: trendLabel,
     atr: currentAtr
   };
+};
+
+
+export const calculatePivotSupports = (klines: any[]): SupportResistanceLevels => {
+  if (klines.length < 2) {
+    return { support1: 0, support2: 0, resistance1: 0, resistance2: 0 };
+  }
+  const prevCandle = klines[klines.length - 2 ];
+  const high = prevCandle.high;
+  const low = prevCandle.low;
+  const close = prevCandle.close;
+  const pivot = (high + low + close) / 3;
+  const r1 = (2 * pivot) - low;
+  const s1 = (2 * pivot) - high;
+  
+  const r2 = pivot + (high - low);
+  const s2 = pivot - (high - low);
+  const levelsPivot: SupportResistanceLevels = {
+    support1: s1,
+    support2: s2,
+    resistance1: r1,
+    resistance2: r2
+  }
+  return levelsPivot;
 };
