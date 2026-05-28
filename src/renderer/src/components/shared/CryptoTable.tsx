@@ -33,47 +33,48 @@ export const CryptoTable: React.FC<CryptoTableProps> = ({
           {loading ? 'Cargando...' : '⟳ Actualizar'}
         </button>
       </div>
-      
-      <table className={styles.cryptoTable}>
-        <thead>
-          <tr>
-            <th> - </th>
-            <th>Par</th>
-            <th>Moneda Base</th>
-            <th>Precio</th>
-            <th>Volumen</th>
-            <th>Cambio</th>
-            <th style={{ textAlign: 'right' }}>Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {symbols.map((item) => (
-            <tr 
-              key={item.symbol}
-              className={`${styles.cryptoRow} ${selectedSymbol === item.symbol ? styles.selected : ''}`}
-              onClick={() => onSelectSymbol(item.symbol)}
-            >
-              <td>
-                <button className={styles.favorites} onClick={() => toggleFavorite(item.symbol)}>
-                    {favorites?.includes(item.symbol) ? "★" : "☆"}
-                </button>
-              </td> 
-              <td className={styles.symbolCell}>{item.symbol}</td>
-              <td className={styles.baseAssetCell}>{item.baseAsset}</td>
-              <td className={styles.baseAssetCell}>{item.price}</td>
-              <td className={styles.baseAssetCell}>{item.volume}</td>
-              <td className={styles.baseAssetCell} 
-              style={{color: item.change > 0 ? '#00c087' : (item.change < 0 ? '#ff3b3b' : '#ffa500') 
-                }}>{item.change}%</td>
-              <td style={{ textAlign: 'right' }}>
-                <button className={styles.actionButton}>
-                  {selectedSymbol === item.symbol ? 'Analizando' : 'Ver'}
-                </button>
-              </td>
+      <div className={styles.containerTable}>
+        <table className={styles.cryptoTable}>
+          <thead>
+            <tr>
+              <th> - </th>
+              <th>Par</th>
+              <th>Moneda Base</th>
+              <th>Precio</th>
+              <th>Volumen</th>
+              <th>Cambio</th>
+              <th style={{ textAlign: 'right' }}>Acción</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {symbols.map((item) => (
+              <tr 
+                key={item.symbol}
+                className={`${styles.cryptoRow} ${selectedSymbol === item.symbol ? styles.selected : ''}`}
+                onClick={() => onSelectSymbol(item.symbol)}
+              >
+                <td>
+                  <button className={styles.favorites} onClick={() => toggleFavorite(item.symbol)}>
+                      {favorites?.includes(item.symbol) ? "★" : "☆"}
+                  </button>
+                </td> 
+                <td className={styles.symbolCell}>{item.symbol}</td>
+                <td className={styles.baseAssetCell}>{item.baseAsset}</td>
+                <td className={styles.baseAssetCell}>{item.price}</td>
+                <td className={styles.baseAssetCell}>{item.volume}</td>
+                <td className={styles.baseAssetCell} 
+                style={{color: item.change > 0 ? '#00c087' : (item.change < 0 ? '#ff3b3b' : '#ffa500') 
+                  }}>{item.change}%</td>
+                <td style={{ textAlign: 'right' }}>
+                  <button className={styles.actionButton}>
+                    {selectedSymbol === item.symbol ? 'Analizando' : 'Ver'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div> 
     </div>
   );
 };

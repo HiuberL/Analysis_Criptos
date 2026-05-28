@@ -10,6 +10,11 @@ export interface RiskFactor {
   value: string | number; // Valor actual del mercado
   points: number; // Puntos añadidos al score de riesgo
 }
+export interface GlobalSimulation {
+  investmentPerCoin: number;
+  entryPrices: { [symbol: string]: number };
+  status: 'idle' | 'running';
+}
 
 export interface CandleData {
   time: number | string;

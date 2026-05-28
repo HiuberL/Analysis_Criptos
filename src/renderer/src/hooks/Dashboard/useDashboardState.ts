@@ -7,11 +7,15 @@ export const useDashboardState = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
-
+  const [favorites, setFavorites] = useState<string[]>(() => {
+      const saved = localStorage.getItem("crypto_favorites");
+      return saved ? JSON.parse(saved) : [];
+    });  
   return {
     symbols, setSymbols,
     loading, setLoading,
     selectedSymbol, setSelectedSymbol,
-    search, setSearch
+    search, setSearch,
+    favorites, setFavorites
   };
 };

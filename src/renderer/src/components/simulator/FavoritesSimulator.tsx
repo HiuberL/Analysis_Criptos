@@ -3,94 +3,26 @@ import styles from '@styles/Simulator.module.css';
 import { useFavorites } from '@renderer/hooks/Favorites/useFavorites';
 import { DashboardLayout } from '../DashBoard.Layout';
 import { Loading } from '../shared/Loading';
+import { useFavoritesSimulator } from '@renderer/hooks/FavoritesSimulator/useFavoritesSimulator';
 
-interface GlobalSimulation {
-  investmentPerCoin: number;
-  entryPrices: { [symbol: string]: number };
-  status: 'idle' | 'running';
-}
+
 
 export const FavoritesSimulator: React.FC = () => {
-  // 🌟 Consumimos 'rawSymbols' que viene directo del estado crudo del hook
   const { favorites, loadSymbols, rawSymbols, loading, setLoading } = useFavorites();
-  
-  const [globalAmount, setGlobalAmount] = useState<string>('');
-  
-  const [simulation, setSimulation] = useState<GlobalSimulation>(() => {
-    const saved = localStorage.getItem("crypto_global_simulation");
-    return saved ? JSON.parse(saved) : { investmentPerCoin: 0, entryPrices: {}, status: 'idle' };
-  });
-
-  // Carga inicial obligatoria al montar la pantalla del Simulador
-  useEffect(() => {
-    const fetchMarketData = async () => {
-      try {
-        setLoading(true);
-        await loadSymbols(); // Descarga de Binance
-      } catch (error) {
-        console.error("Error al cargar precios en simulador:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMarketData();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("crypto_global_simulation", JSON.stringify(simulation));
-  }, [simulation]);
-
-  // Extracción de precio buscando en la lista cruda (rawSymbols)
-  const getCurrentMarketPrice = (symbol: string): number => {
-    if (!rawSymbols || rawSymbols.length === 0) return 0;
-
-    const coin = rawSymbols.find((s) => s.symbol === symbol);
-    if (coin) {
-      // Mapeo defensivo de propiedades según useFavoritesState
-      const targetPrice = coin.lastPrice || coin.price || coin.closePrice;
-      return targetPrice ? parseFloat(targetPrice) : 0;
-    }
-    return 0;
-  };
-
-  const handleStartGlobalSimulation = () => {
-    const amount = parseFloat(globalAmount);
-    if (amount <= 0 || isNaN(amount)) {
-      alert("Por favor introduce un monto válido mayor a 0.");
-      return;
-    }
-
-    const pricesSnapshot: { [symbol: string]: number } = {};
-    let missingPrices = false;
-
-    favorites.forEach((symbol) => {
-      const price = getCurrentMarketPrice(symbol);
-      if (price === 0) missingPrices = true;
-      pricesSnapshot[symbol] = price;
-    });
-
-    if (missingPrices && favorites.length > 0) {
-      alert("⚠️ Los precios del mercado se están actualizando. Espera un segundo.");
-      return;
-    }
-
-    setSimulation({
-      investmentPerCoin: amount,
-      entryPrices: pricesSnapshot,
-      status: 'running'
-    });
-  };
-
-  const handleResetGlobalSimulation = () => {
-    setSimulation({
-      investmentPerCoin: 0,
-      entryPrices: {},
-      status: 'idle'
-    });
-    setGlobalAmount('');
-  };
-
-  const isRunning = simulation.status === 'running';
+  const {
+    isRunning,
+    globalAmount,
+    setGlobalAmount,
+    handleStartGlobalSimulation,
+    handleResetGlobalSimulation,
+    getCurrentMarketPrice,
+    simulation
+  } = useFavoritesSimulator(
+      setLoading,
+      loadSymbols,
+      rawSymbols,
+      favorites,
+  );
 
   // Spinner de seguridad si la lista está vacía en el primer milisegundo
   if (loading && (!rawSymbols || rawSymbols.length === 0)) {
