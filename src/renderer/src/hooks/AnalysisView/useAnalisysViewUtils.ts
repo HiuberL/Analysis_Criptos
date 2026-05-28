@@ -21,7 +21,7 @@ export const useAnalisysViewUtils = (symbol,styles,state: ReturnType<typeof useA
     if (!data) return;
 
     const condicionMercado = scoreRisk?.label ?? 'N/A';
-    const puntosScore = scoreRisk?.score !== undefined ? scoreRisk.score : 0;
+    const puntosScore = scoreRisk?.score.total !== undefined ? scoreRisk.score.total : 0;
 
     const textoBlog = `
     📊 **INFORME TÉCNICO AUTOMÁTICO: ${symbol}**
