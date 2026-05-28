@@ -18,7 +18,8 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
     getRsiColorClass,
     trendColor,
     scoreRisk,
-    pivotLevels
+    pivotLevels,
+    handleCopyBlog
   } = useAnalysisView(symbol,styles);
 
   if (loading) return <SubLoading message={`Analizando ${symbol} (${timeframe})...`} />;
@@ -34,6 +35,14 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
           <button className={timeframe === '1h' ? styles.active : ''} onClick={() => setTimeframe('1h')}>1H</button>
           <button className={timeframe === '1d' ? styles.active : ''} onClick={() => setTimeframe('1d')}>1D</button>
           <button className={timeframe === '1M' ? styles.active : ''} onClick={() => setTimeframe('1M')}>1M</button>
+          {/* BOTÓN NUEVO PARA COPIAR AL BLOG */}
+          <button 
+            className={styles.copyBlogButton} 
+            onClick={handleCopyBlog}
+            title="Copiar informe formateado para Blog"
+          >
+            📋 Copiar Informe
+          </button>
         </div>
       </div>
 

@@ -7,7 +7,7 @@ import { useAnalisysViewUtils } from './useAnalisysViewUtils';
 export const useAnalysisView = (symbol: string, styles) => {
   const state = useAnalysisViewState();
   const effects = useAnalysisViewEffects(symbol, state);
-  const utils = useAnalisysViewUtils(styles,state);
+  const utils = useAnalisysViewUtils(symbol,styles,state);
   return {
     timeframe: state.timeframe,
     loading: state.loading,
@@ -18,6 +18,7 @@ export const useAnalysisView = (symbol: string, styles) => {
     getRsiColorClass: utils.getRsiColorClass,
     trendColor: utils.trendColor,
     scoreRisk: state.scoreRisk,
-    pivotLevels: state.pivotLevels
+    pivotLevels: state.pivotLevels,
+    handleCopyBlog: utils.handleCopyBlog
   };
 };
