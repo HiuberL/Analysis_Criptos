@@ -1,7 +1,7 @@
 {
   "name": "logic-binance",
-  "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "version": "1.1.0",
+  "description": "Aplicativo para monitorear criptos según indicadores",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
