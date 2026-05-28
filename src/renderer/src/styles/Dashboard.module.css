@@ -62,13 +62,14 @@ body {
   display: flex;
   gap: 20px;
   width: 100%;
-  height: calc(100vh - 100px);
+  height: 100vh;
 }
 
 .containerModules{
   display: flex;
   gap: 20px;
   width: 100%;
+  height: max-content;
 }
 .columnOne,
 .columnTwo {

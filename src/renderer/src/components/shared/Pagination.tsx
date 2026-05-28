@@ -1,5 +1,4 @@
 // src/renderer/src/components/Pagination.tsx
-import React from 'react';
 import styles from '@styles/shared/Pagination.module.css';
 
 export const Pagination = ({ currentPage, totalPages, onPageChange }) => (

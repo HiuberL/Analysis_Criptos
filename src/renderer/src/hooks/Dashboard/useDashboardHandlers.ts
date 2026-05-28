@@ -1,10 +1,15 @@
 // src/renderer/src/hooks/dashboard/useDashboardHandlers.ts
 import { ChangeEvent } from 'react';
+import { useDashboardState } from './useDashboardState';
 
 export const useDashboardHandlers = (
-  setSearch: React.Dispatch<React.SetStateAction<string>>,
-  setSelectedSymbol: React.Dispatch<React.SetStateAction<string | null>>
+    state: ReturnType<typeof useDashboardState>
 ) => {
+
+  const {
+    setSearch,
+    setSelectedSymbol
+  }= state;
   
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);

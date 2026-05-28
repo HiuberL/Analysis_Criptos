@@ -11,7 +11,7 @@ const API_KEY = import.meta.env.VITE_BINANCE_API_KEY;
 // En tu archivo de servicios donde tienes subscribeToKlines
 export const fetchKlines = async (
   symbol: string = 'BTCUSDT', 
-  interval: '1h' | '1d'| '1M' = '1h',
+  interval: '15m' |'1h' | '1d'| '1M' = '1h',
   limit: number = 100
 ): Promise<KlineData[]> => {
   try {

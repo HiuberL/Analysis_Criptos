@@ -1,12 +1,13 @@
 /* src/renderer/src/assets/CryptoTable.module.css */
-
 .cryptoTableContainer {
+  display: flex;
+  flex-direction: column;
   background-color: #1e2329;
   border-radius: 8px;
   padding: 16px;
-  height: 85%;
-  overflow-y: auto;
+  height: 90%; /* Asegúrate de que su contenedor padre tenga un alto definido (como 100vh o px) */
   border: 1px solid #2b3139;
+  box-sizing: border-box; /* Evita que los paddings rompan el cálculo del alto */
 }
 
 .title {
@@ -15,10 +16,33 @@
   margin-bottom: 16px;
 }
 
+/* CORREGIDO: Usamos flex: 1 para obligar a la tabla a rellenar el espacio libre */
+.containerTable {
+  flex: 1; 
+  overflow-y: auto;
+  width: 100%;
+  /* Eliminamos height: fit-content que causaba el colapso inicial */
+}
+
 .cryptoTable {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+}
+
+/* Opcional: Asegura que el scrollbar oscuro combine con el tema de Binance */
+.containerTable::-webkit-scrollbar {
+  width: 6px;
+}
+.containerTable::-webkit-scrollbar-track {
+  background: #1e2329;
+}
+.containerTable::-webkit-scrollbar-thumb {
+  background: #2b3139;
+  border-radius: 4px;
+}
+.containerTable::-webkit-scrollbar-thumb:hover {
+  background: #848e9c;
 }
 
 .cryptoTable th {

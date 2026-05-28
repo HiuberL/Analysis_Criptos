@@ -1,35 +1,160 @@
-.tradingRow {
+/* Contenedor principal de todo el bloque */
+.panelContainer {
   display: flex;
-  justify-content: space-between; /* Precio izq, Niveles der */
-  align-items: center;
-  padding: 15px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Estado de carga */
+.panelEmpty {
   background-color: #1e2329;
+  color: #848e9c;
+  padding: 20px;
   border-radius: 8px;
-  gap: 20px; /* Espacio entre el precio y el bloque de 4 valores */
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #2b3139;
+}
+
+/* Fila superior: Entrada y la Alerta de Riesgo */
+.topRow {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
 }
 
 .entrySide {
-  flex: 0 0 auto; /* El precio no se estira ni se encoge */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #1e2329;
+  border: 1px solid #2b3139;
+  border-radius: 8px;
+  padding: 10px 16px;
+  min-width: 140px;
+}
+
+.entrySide span {
+  color: #848e9c;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.entrySide strong {
+  color: #eaebed;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.statusBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #1e2329;
+  border: 1px solid #2b3139;
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex-grow: 1;
+}
+
+/* --- GRID OPERATIVO: Parámetros del Bot (SL y TP) --- */
+.gridTitle {
+  color: #eaebed;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .levelsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 columnas para los 4 valores */
-  gap: 10px; /* Espacio entre los 4 cuadraditos */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .levelBox {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: #2b3139;
-  padding: 5px;
-  border-radius: 4px;
-  min-width: 200px; /* Asegura que no se aplasten */
+  background-color: #1e2329;
+  border: 1px solid #2b3139;
+  border-radius: 6px;
+  padding: 8px 12px;
 }
 
-.levelBox span { font-size: 10px; color: #848e9c; text-transform: uppercase; }
-.levelBox strong { font-size: 12px; }
+.levelBox span {
+  color: #848e9c;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
 
-.slText { color: #f6465d; } /* Rojo */
-.tpText { color: #0ecb81; } /* Verde */
+.levelBox strong {
+  font-size: 13px;
+}
+
+.slText { color: #f6465d; }
+.tpText { color: #0ecb81; }
+
+/* --- NUEVA SECCIÓN: Puntos de Soporte y Resistencia en el Canal --- */
+.technicalSection {
+  background-color: #181a20;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #2b3139;
+}
+
+.techRowGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.techBox {
+  background-color: #1e2329;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #2b3139;
+}
+
+.techBox.support {
+  border-bottom: 2px solid #f6465d; /* Te avisa que es un piso de caída */
+}
+
+.techBox.resistance {
+  border-bottom: 2px solid #0ecb81; /* Te avisa que es un techo de subida */
+}
+
+.techBox span {
+  color: #848e9c;
+  font-size: 11px;
+  display: block;
+}
+
+.techBox strong {
+  color: #fff;
+  font-size: 13px;
+}
+
+/* Desglose matemático pequeño */
+.breakdownSection {
+  margin-top: 4px;
+}
+
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.factorCard {
+  background-color: #1e2329;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.factorClean { border-left: 2px solid #0ecb81; color: #0ecb81; }
+.factorDanger { border-left: 2px solid #f6465d; color: #f6465d; }
+.factorValue { color: #848e9c; font-size: 10px; }

@@ -1,12 +1,27 @@
-import { SymbolInfo } from '@renderer/interfaces/binance.interface';
 import { fetchAvailableSymbols } from '@renderer/services/binance-api.services';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
+import { useDashboardState } from './useDashboardState';
 
 export const useDashboardEffects = (
-  setSymbols: React.Dispatch<React.SetStateAction<SymbolInfo[]>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+    state: ReturnType<typeof useDashboardState>
 ) => {
-  // Usamos useCallback para que la función sea estable
+  const {
+    setLoading,
+    setSymbols,
+    setFavorites,
+    favorites
+  }= state;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
+
+  const toggleFavorite = (symbol: string) => {
+    setFavorites(prev => 
+      prev.includes(symbol) ? prev.filter(s => s !== symbol) : [...prev, symbol]
+    );
+  };
+
+
   const loadSymbols = useCallback(async () => {
     setLoading(true);
     try {
@@ -23,5 +38,29 @@ export const useDashboardEffects = (
     loadSymbols();
   }, [loadSymbols]);
 
-  return { loadSymbols }; // Retornamos la función para usarla en el Dashboard
+  const filteredSymbols = useMemo(() => {
+    return state.symbols.filter(item => 
+      item.symbol.toLowerCase().includes(state.search.toLowerCase()) ||
+      item.baseAsset.toLowerCase().includes(state.search.toLowerCase())
+    );
+  }, [state.symbols, state.search]);  
+
+  const paginatedSymbols = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredSymbols.slice(start, start + itemsPerPage);
+  }, [filteredSymbols, currentPage]);
+
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [state.search]); // Solo depende de la búsqueda, no de los favoritos
+
+  useEffect(() => {
+    localStorage.setItem("crypto_favorites", JSON.stringify(favorites));
+  }, [favorites]);
+  
+  const totalPages = Math.ceil(filteredSymbols.length / itemsPerPage);
+
+
+  return { loadSymbols,toggleFavorite,paginatedSymbols,currentPage,setCurrentPage,totalPages }; // Retornamos la función para usarla en el Dashboard
 };

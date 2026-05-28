@@ -1,10 +1,14 @@
 // src/renderer/src/hooks/dashboard/useDashboardHandlers.ts
 import { ChangeEvent } from 'react';
+import { useFavoritesState } from './useFavoritesState';
 
 export const useFavoritesHandlers = (
-  setSearch: React.Dispatch<React.SetStateAction<string>>,
-  setSelectedSymbol: React.Dispatch<React.SetStateAction<string | null>>
+    state: ReturnType<typeof useFavoritesState>
 ) => {
+  const {
+    setSearch,
+    setSelectedSymbol
+  }= state;
   
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
