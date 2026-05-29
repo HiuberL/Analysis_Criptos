@@ -6,7 +6,8 @@ import { evaluateDropRisk, getTradeLevels } from '@renderer/utils/Indicators';
 
 export const useAnalysisViewEffects = (
   symbol: string,
-  state: ReturnType<typeof useAnalysisViewState>  
+  state: ReturnType<typeof useAnalysisViewState>,
+  whaleBuyRatioRaw: number
 ) => {
   const {
     setLoading,
@@ -37,7 +38,7 @@ export const useAnalysisViewEffects = (
         const currentRsi = initialTrend.rsi ?? 50;
         const currentEma = initialTrend.ema200 ?? currentPrice;
         setPivotLevels(pivotLevels);
-        const initialEvaluateRisk = evaluateDropRisk(initialTrend.currentPrice ?? 0, pivotLevels, currentRsi, currentEma);
+        const initialEvaluateRisk = evaluateDropRisk(initialTrend.currentPrice ?? 0, pivotLevels, currentRsi, currentEma,whaleBuyRatioRaw);
         setTradeLevels(getTradeLevels(initialTrend.lastPrice || currentPrice, initialTrend.atr || 0));
         setData(initialTrend);
         setScoreRisk(initialEvaluateRisk);
@@ -59,7 +60,7 @@ export const useAnalysisViewEffects = (
         const currentRsi = result?.rsi ?? 50; 
         const currentEma = result?.ema200 ?? currentPrice;
         
-        const evaluateRisk = evaluateDropRisk(result?.currentPrice ?? currentPrice, pivotLevels, currentRsi, currentEma);
+        const evaluateRisk = evaluateDropRisk(result?.currentPrice ?? currentPrice, pivotLevels, currentRsi, currentEma,whaleBuyRatioRaw);
         setTradeLevels(result ? getTradeLevels(result.lastPrice || currentPrice, result.atr || 0) : null);
         
         setData(result);

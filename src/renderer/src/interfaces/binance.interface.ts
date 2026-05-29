@@ -16,3 +16,12 @@ export interface SymbolInfo {
   volume?:string;
   change?:string
 }
+
+export interface WhaleTrade {
+  id: number;
+  time: number;
+  price: number;
+  quantity: number;
+  totalUsdt: number;
+  side: 'BUY' | 'SELL';
+}

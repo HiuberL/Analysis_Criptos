@@ -3,6 +3,7 @@ import { SubLoading } from './SubLoading';
 import { CandleChart } from './CandleChart';
 import { TradeInfoPanel } from '../shared/TradeInfo';
 import { useAnalysisView } from '@renderer/hooks/AnalysisView/useAnalysisView';
+import { useWhaleTracker } from '@renderer/hooks/WhaleTracker/useWhaleTracker';
 
 interface AnalysisViewProps {
   symbol: string;
@@ -19,7 +20,10 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
     trendColor,
     scoreRisk,
     pivotLevels,
-    handleCopyBlog
+    handleCopyBlog,
+    whaleBuyVolume,
+    whaleSellVolume,
+    whaleTrack
   } = useAnalysisView(symbol,styles);
 
   if (loading) return <SubLoading message={`Analizando ${symbol} (${timeframe})...`} />;
@@ -51,7 +55,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
       </div>
 
       {/* Panel integrado */}
-      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels}/>
+      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleTrack={whaleBuyVolume-whaleSellVolume} whaleFuture={whaleTrack}/>
 
       <div className={styles.cardsGrid}>
         <div className={styles.card}>

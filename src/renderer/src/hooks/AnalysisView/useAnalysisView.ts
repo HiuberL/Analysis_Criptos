@@ -3,11 +3,14 @@
 import { useAnalysisViewState } from './useAnalysisViewState';
 import { useAnalysisViewEffects } from './useAnalysisViewEffects';
 import { useAnalisysViewUtils } from './useAnalisysViewUtils';
+import { useWhaleTracker } from '../WhaleTracker/useWhaleTracker';
 
 export const useAnalysisView = (symbol: string, styles) => {
   const state = useAnalysisViewState();
-  const effects = useAnalysisViewEffects(symbol, state);
+  const { buyRatio,whaleBuyVolume,whaleSellVolume,whaleTrack} = useWhaleTracker(symbol, 50000,state);
+  useAnalysisViewEffects(symbol, state,buyRatio);
   const utils = useAnalisysViewUtils(symbol,styles,state);
+
   return {
     timeframe: state.timeframe,
     loading: state.loading,
@@ -19,6 +22,9 @@ export const useAnalysisView = (symbol: string, styles) => {
     trendColor: utils.trendColor,
     scoreRisk: state.scoreRisk,
     pivotLevels: state.pivotLevels,
-    handleCopyBlog: utils.handleCopyBlog
+    handleCopyBlog: utils.handleCopyBlog,
+    whaleBuyVolume: whaleBuyVolume,
+    whaleSellVolume: whaleSellVolume,
+    whaleTrack: whaleTrack
   };
 };
