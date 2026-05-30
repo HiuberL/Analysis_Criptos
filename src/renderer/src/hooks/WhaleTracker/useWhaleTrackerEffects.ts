@@ -1,4 +1,4 @@
-import { fetchHistoricalWhaleTrades, fetchWhaleLongShortRatio, subscribeToWhaleTrades } from "@renderer/services/binance-api.services";
+import { fetchGlobalLongShortRatio, fetchHistoricalWhaleTrades, fetchWhaleLongShortRatio, subscribeToWhaleTrades } from "@renderer/services/binance-api.services";
 import { useWhaleTrackerState } from "./useWhaleTrackerState";
 import { useEffect } from "react";
 import { calculateWhaleScore } from "@renderer/utils/Indicators";
@@ -13,11 +13,12 @@ export const useWhaleTrackerEffects = (
     whaleBuyVolume, setWhaleBuyVolume,
     whaleSellVolume, setWhaleSellVolume,
     setLoading,
-    setWhaleTrack
+    setWhaleTrack,
+    globalTrack, setGlobalTrack
   } = state;
   
   useEffect(() => {
-let isMounted = true; // Flag defensivo para evitar memory leaks si cambian rápido de moneda
+    let isMounted = true; // Flag defensivo para evitar memory leaks si cambian rápido de moneda
     let unsubscribeWebSocket: (() => void) | null = null;
 
     // Resetear estados al cambiar de moneda para no mezclar datos viejos
@@ -85,16 +86,26 @@ let isMounted = true; // Flag defensivo para evitar memory leaks si cambian ráp
 
     const getWhaleData = async () => {
       const data = await fetchWhaleLongShortRatio(symbol, timeStamp); // Evaluamos en base a bloques de 1 hora
-      console.log(data);
       if (isMounted) {
         const score = calculateWhaleScore(data);
         setWhaleTrack(score);
         setLoading(false);
       }
     };
-
+    const getWhaleDataGlobal = async () => {
+      const globalData = await fetchGlobalLongShortRatio(symbol, timeStamp);
+      if (globalData && globalData.length > 0) {
+        const latestGlobal = globalData[globalData.length - 1];
+        
+        const globalLong = parseFloat(latestGlobal.longAccount);  // Porcentaje global long
+        const globalShort = parseFloat(latestGlobal.shortAccount); // Porcentaje global short
+        
+        // Guardas esto en un estado para pintarlo en tu interfaz
+        setGlobalTrack({ long: globalLong * 100, short: globalShort * 100 });
+      }    
+    }
     getWhaleData();
-
+    getWhaleDataGlobal();
     return () => {
       isMounted = false; // Evita fugas de memoria al cambiar rápido de moneda
     };

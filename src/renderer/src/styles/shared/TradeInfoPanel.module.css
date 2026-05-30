@@ -56,10 +56,15 @@
   background-color: #1e2329;
   border: 1px solid #2b3139;
   border-radius: 8px;
+  gap:2px;
   padding: 10px 16px;
   flex-grow: 1;
 }
 
+.statusBoxData{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  
+}
 /* --- GRID OPERATIVO: Parámetros del Bot (SL y TP) --- */
 .gridTitle {
   color: #eaebed;

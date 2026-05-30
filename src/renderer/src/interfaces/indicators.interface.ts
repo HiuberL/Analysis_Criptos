@@ -49,3 +49,8 @@ export interface Score{
     total: number,
     breakdown: RiskFactor[]
 }
+
+export interface GlobalDataFuture{
+  long: number,
+  short:number
+}

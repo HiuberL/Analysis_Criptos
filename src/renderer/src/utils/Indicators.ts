@@ -197,3 +197,31 @@ export const calculateWhaleScore = (ratioData: any[]): number => {
   // Si está en zona de indecisión (ej: 51% vs 49%), es neutral
   return 0;
 };
+
+export const getPricePredictionScore = (
+  rsi: number, 
+  currentPrice: number, 
+  ema200: number, 
+  whaleTrack: number
+) => {
+  let score = 0;
+
+  // 1. Sentimiento Institucional (Ballenas)
+  score += whaleTrack; // Si las ballenas están en +10, suma 10 puntos.
+
+  // 2. Tendencia Estructural (EMA 200)
+  if (currentPrice > ema200) {
+    score += 25; // Sesgo estructural alcista
+  } else {
+    score -= 25; // Sesgo estructural bajista
+  }
+
+  // 3. Extremos de Mercado (RSI)
+  if (rsi < 30) score += 20; // Exhausto a la venta, potencial rebote alcista futuro
+  if (rsi > 70) score -= 20; // Exhausto a la compra, potencial caída futura
+
+  // Retornamos el veredicto para tu HTML
+  if (score >= 30) return { verdict: "🟢 Alta Probabilidad Alcista", power: score, color: "#02c076" };
+  if (score <= -30) return { verdict: "🔴 Alta Probabilidad Bajista", power: score, color: "#f6465d" };
+  return { verdict: "🟡 Zona de Rangos/ Indecisión", power: score, color: "#f0b90b" };
+};

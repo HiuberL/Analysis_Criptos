@@ -3,7 +3,7 @@ import { SubLoading } from './SubLoading';
 import { CandleChart } from './CandleChart';
 import { TradeInfoPanel } from '../shared/TradeInfo';
 import { useAnalysisView } from '@renderer/hooks/AnalysisView/useAnalysisView';
-import { useWhaleTracker } from '@renderer/hooks/WhaleTracker/useWhaleTracker';
+import { getPricePredictionScore } from '@renderer/utils/Indicators';
 
 interface AnalysisViewProps {
   symbol: string;
@@ -23,11 +23,13 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
     handleCopyBlog,
     whaleBuyVolume,
     whaleSellVolume,
-    whaleTrack
+    whaleTrack,
+    globalTrack
   } = useAnalysisView(symbol,styles);
 
   if (loading) return <SubLoading message={`Analizando ${symbol} (${timeframe})...`} />;
   if (!data) return <p className={styles.message}>No hay datos suficientes para analizar {symbol}.</p>;
+  const resume = getPricePredictionScore(data.rsi,data.currentPrice,data.ema200,whaleTrack);
 
   return (
     <div className={styles.container}>
@@ -55,7 +57,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
       </div>
 
       {/* Panel integrado */}
-      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleTrack={whaleBuyVolume-whaleSellVolume} whaleFuture={whaleTrack}/>
+      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleTrack={whaleBuyVolume-whaleSellVolume} whaleFuture={whaleTrack} veredict={resume} globalTrack={globalTrack}/>
 
       <div className={styles.cardsGrid}>
         <div className={styles.card}>

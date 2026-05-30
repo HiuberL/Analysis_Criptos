@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useAnalysisViewState } from './useAnalysisViewState';
 import { fetchKlines, subscribeToKlines } from '@renderer/services/binance-api.services';
 import { calculatePivotSupports, calculateTrend } from '@renderer/utils/AnalisisResult';
-import { evaluateDropRisk, getTradeLevels } from '@renderer/utils/Indicators';
+import { evaluateDropRisk, getPricePredictionScore, getTradeLevels } from '@renderer/utils/Indicators';
 
 export const useAnalysisViewEffects = (
   symbol: string,
@@ -40,6 +40,7 @@ export const useAnalysisViewEffects = (
         setPivotLevels(pivotLevels);
         const initialEvaluateRisk = evaluateDropRisk(initialTrend.currentPrice ?? 0, pivotLevels, currentRsi, currentEma,whaleBuyRatioRaw);
         setTradeLevels(getTradeLevels(initialTrend.lastPrice || currentPrice, initialTrend.atr || 0));
+       
         setData(initialTrend);
         setScoreRisk(initialEvaluateRisk);
       }

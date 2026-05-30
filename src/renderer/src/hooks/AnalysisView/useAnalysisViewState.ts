@@ -7,7 +7,7 @@ export const useAnalysisViewState = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
-  const [timeframe, setTimeframe] = useState<'15m'|'1h' | '1d' | '1M'>('1h');
+  const [timeframe, setTimeframe] = useState<'15m'|'1h' | '1d' | '1M'>('1d');
   const [rawKlines, setRawKlines] = useState<any[]>([]);
   const [data, setData] = useState<AnalysisResult | null>(null);
   const [tradeLevels, setTradeLevels] = useState<any>(null);

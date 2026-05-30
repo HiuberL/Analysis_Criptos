@@ -12,27 +12,29 @@ interface TradeInfoProps {
     stopLossV: number;
     takeProfitV: number;
   } | null | any;
-  
+
   // Valores crudos de los pivotes calculados en el gráfico
   technicalLevels: SupportResistanceLevels;
-  scoreRisk: RiskEvaluate; 
-  whaleTrack:number;
-  whaleFuture:any;
+  scoreRisk: RiskEvaluate;
+  whaleTrack: number;
+  whaleFuture: any;
+  veredict: any;
+  globalTrack: any
 }
 
-export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLevels, scoreRisk,whaleTrack,whaleFuture }) => {
+export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLevels, scoreRisk, whaleTrack, whaleFuture, veredict, globalTrack }) => {
   if (!levels || !scoreRisk || !levels.entryPrice) {
     return <div className={styles.panelEmpty}>Esperando señal de mercado...</div>;
   }
   const labelText = scoreRisk.label || "Analizando...";
   const labelColor = scoreRisk.color || "#faad14";
-  
+
   const totalPoints = scoreRisk.score?.total !== undefined ? scoreRisk.score.total : 0;
   const labelWhale = scoreRisk.score.breakdown[4].value;
-  console.log(whaleFuture);
+  const globalTrackData = Number((globalTrack.long- globalTrack.short).toFixed(2));
   return (
     <div className={styles.panelContainer}>
-      
+
       {/* 1. SECCIÓN DE ESTADO PRINCIPAL */}
       <div className={styles.topRow}>
         <div className={styles.entrySide}>
@@ -41,25 +43,41 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
         </div>
 
         <div className={styles.statusBox} style={{ borderLeft: `4px solid ${labelColor}` }}>
-          <span style={{ color: labelColor, fontWeight: '700', fontSize: '11px' }}>Riesgo de Drop</span>
-          <strong style={{ color: '#fff', fontSize: '15px' }}>{labelText} ({totalPoints} pts)</strong>
-           <strong>{whaleTrack > 0 ? (
-            <span>🟢 (${whaleTrack.toFixed(2)})</span>
+          <span style={{ color: labelColor, fontWeight: '700', fontSize: '12px' }}>Centro de decisión</span>
+          <div className={styles.statusBoxData}>
+            <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>{labelText} ({totalPoints} pts)</strong>
+            <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>
+              {whaleFuture > 0 ? (
+                <span style={{ color: '#02c076' }}>🟢 Ballenas Comprando (Acumulan Longs: +{whaleFuture}%)</span>
+              ) : whaleFuture < 0 ? (
+                <span style={{ color: '#f6465d' }}>🔴 Ballenas Vendiendo (Acumulan Shorts: {whaleFuture}%)</span>
+              ) : (
+                <span style={{ color: '#f0b90b' }}>🟡 Ballenas en Neutro (Ratios equilibrados)</span>
+              )}
+            </strong>
+            <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>{whaleTrack > 0 ? (
+              <span >🟢 (${whaleTrack.toFixed(2)})</span>
             ) : whaleTrack < 0 ? (
               <span>🔴 (${whaleTrack.toFixed(2)})</span>
             ) : (
               <span>🟡 (${whaleTrack.toFixed(2)})</span>
             )} / {labelWhale}</strong>
-            <strong style={{ marginTop: '5px', fontSize: '16px', fontWeight: 'bold' }}>
-                  {whaleFuture > 0 ? (
-                    <span style={{ color: '#02c076' }}>🟢 Ballenas Comprando (Acumulan Longs: +{whaleFuture}%)</span>
-                  ) : whaleFuture < 0 ? (
-                    <span style={{ color: '#f6465d' }}>🔴 Ballenas Vendiendo (Acumulan Shorts: {whaleFuture}%)</span>
-                  ) : (
-                    <span style={{ color: '#f0b90b' }}>🟡 Ballenas en Neutro (Ratios equilibrados)</span>
-                  )}
-                </strong>
-            
+
+            <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>
+              <span style={{ color: veredict.color }}>{veredict.verdict} ({veredict.power}%)</span>
+            </strong>
+            <div></div>
+            <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>
+              {globalTrackData > 0 ? (
+                <span style={{ color: '#02c076' }}>🟢 Futuros Globales: +{globalTrackData}%</span>
+              ) : globalTrackData < 0 ? (
+                <span style={{ color: '#f6465d' }}>🔴 Futuros Globales {globalTrackData}%</span>
+              ) : (
+                <span style={{ color: '#f0b90b' }}>🟡 Futuros Globales {globalTrackData}%</span>
+              )}
+            </strong>
+
+          </div>
         </div>
       </div>
 

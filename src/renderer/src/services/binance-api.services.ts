@@ -11,7 +11,7 @@ const API_KEY = import.meta.env.VITE_BINANCE_API_KEY;
 // En tu archivo de servicios donde tienes subscribeToKlines
 export const fetchKlines = async (
   symbol: string = 'BTCUSDT', 
-  interval: '15m' |'1h' | '1d'| '1M' = '1h',
+  interval: '15m' |'1h' | '1d'| '1M' = '1d',
   limit: number = 100
 ): Promise<KlineData[]> => {
   try {
@@ -136,11 +136,11 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
       .filter((item: SymbolInfo) => {
         const absChange = Math.abs(item.change);
         // Filtramos monedas que se mueven más de 1% pero menos de 10% (volatilidad saludable)
-        return absChange > 1 && absChange < 10;
+        return absChange >= 0 && absChange < 20;
       })
       .filter((item: SymbolInfo) => parseFloat(item.price) > 0.0001)
       // ----------------------------------------
-      .sort((a: SymbolInfo, b: SymbolInfo) => b.change - a.change);
+      .sort((a: SymbolInfo, b: SymbolInfo) => b.price - a.price);
 
   } catch (error) {
     console.error('Error al filtrar símbolos:', error);
@@ -179,7 +179,7 @@ export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => 
         };
       })
       // ----------------------------------------
-      .sort((a: SymbolInfo, b: SymbolInfo) => b.volume - a.volume);
+      .sort((a: SymbolInfo, b: SymbolInfo) => b.price - a.price);
 
   } catch (error) {
     console.error('Error al filtrar símbolos:', error);
@@ -291,7 +291,7 @@ export const fetchHistoricalWhaleTrades = async (
   }
 };
 
-export const fetchWhaleLongShortRatio = async (symbol: string, period: string = '1h'): Promise<any[]> => {
+export const fetchWhaleLongShortRatio = async (symbol: string, period: string = '1d'): Promise<any[]> => {
   try {
     // Usamos la API de Binance Futures para datos del mercado (fapi)
     const response = await fetch(
@@ -305,6 +305,19 @@ export const fetchWhaleLongShortRatio = async (symbol: string, period: string = 
     return await response.json();
   } catch (error) {
     console.error("Error al obtener datos de ballenas:", error);
+    return [];
+  }
+};
+export const fetchGlobalLongShortRatio = async (symbol: string, period: string = '1h'): Promise<any[]> => {
+  try {
+    const response = await fetch(
+      `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol.toUpperCase()}&period=${period}&limit=5`
+    );
+    
+    if (!response.ok) throw new Error('Error al consultar datos globales');
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchGlobalLongShortRatio:", error);
     return [];
   }
 };

@@ -7,10 +7,10 @@ import { useWhaleTracker } from '../WhaleTracker/useWhaleTracker';
 
 export const useAnalysisView = (symbol: string, styles) => {
   const state = useAnalysisViewState();
-  const { buyRatio,whaleBuyVolume,whaleSellVolume,whaleTrack} = useWhaleTracker(symbol, 50000,state);
+  const { buyRatio,whaleBuyVolume,whaleSellVolume,whaleTrack,globalTrack} = useWhaleTracker(symbol, 30000,state);
   useAnalysisViewEffects(symbol, state,buyRatio);
   const utils = useAnalisysViewUtils(symbol,styles,state);
-
+  
   return {
     timeframe: state.timeframe,
     loading: state.loading,
@@ -25,6 +25,7 @@ export const useAnalysisView = (symbol: string, styles) => {
     handleCopyBlog: utils.handleCopyBlog,
     whaleBuyVolume: whaleBuyVolume,
     whaleSellVolume: whaleSellVolume,
-    whaleTrack: whaleTrack
+    whaleTrack: whaleTrack,
+    globalTrack: globalTrack
   };
 };

@@ -14,6 +14,7 @@ return {
     whaleBuyVolume: state.whaleBuyVolume,
     whaleSellVolume: state.whaleSellVolume,
     buyRatio: effects.buyRatio,
-    whaleTrack: state.whaleTrack
+    whaleTrack: state.whaleTrack,
+    globalTrack:state.globalTrack
   };
 };

@@ -1,4 +1,5 @@
 import { WhaleTrade } from "@renderer/interfaces/binance.interface";
+import { GlobalDataFuture } from "@renderer/interfaces/indicators.interface";
 import { useState } from "react";
 
 export const useWhaleTrackerState = () => {
@@ -7,11 +8,17 @@ export const useWhaleTrackerState = () => {
   const [whaleSellVolume, setWhaleSellVolume] = useState<number>(0);
   const [whaleTrack, setWhaleTrack] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);  
+  const [globalTrack, setGlobalTrack] = useState<GlobalDataFuture>({
+    long: 0,
+    short:0
+  }
+  );  
 return {
     whaleTrades, setWhaleTrades,
     whaleBuyVolume, setWhaleBuyVolume,
     whaleSellVolume, setWhaleSellVolume,
     whaleTrack, setWhaleTrack,
-    loading, setLoading
+    loading, setLoading,
+    globalTrack,setGlobalTrack
   }
 };
