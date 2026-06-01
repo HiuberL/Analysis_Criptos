@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
-import { createChart, ColorType, CandlestickSeries, LineSeries } from 'lightweight-charts';
+import { createChart, ColorType, CandlestickSeries, LineSeries, LineStyle } from 'lightweight-charts';
 import { useCandleChartUtils } from './useCandleChartUtils';
+import { MultipleProjections} from '@renderer/interfaces/indicators.interface';
 
 export const useCandleChartEffects = (
   data: any,
@@ -10,7 +11,11 @@ export const useCandleChartEffects = (
   ema20SeriesRef: any,
   ema50SeriesRef: any,
   ema200SeriesRef: any,
-  utils: ReturnType<typeof useCandleChartUtils>
+  utils: ReturnType<typeof useCandleChartUtils>,
+  predictionSeriesRefL: any,
+  predictionSeriesRefR: any,
+  predictionSeriesRefS: any,
+  predictionData?: MultipleProjections
 ) => {
   const { calculateEMA } = utils;
 
@@ -24,7 +29,7 @@ export const useCandleChartEffects = (
       grid: { vertLines: { color: '#2b3139' }, horzLines: { color: '#2b3139' } },
       rightPriceScale: { visible: true },
       timeScale: {
-        rightOffset: 12,
+        rightOffset: 15, // Aumentamos levemente para dar más aire visual a los períodos proyectados hacia el futuro
         barSpacing: 10,
         fixLeftEdge: false,
         fixRightEdge: false,
@@ -45,11 +50,37 @@ export const useCandleChartEffects = (
     const ema50Series = chart.addSeries(LineSeries, { color: '#2962FF', lineWidth: 2, title: 'EMA 50' });
     const ema200Series = chart.addSeries(LineSeries, { color: '#FF00FF', lineWidth: 2, title: 'EMA 200' });
 
+    // 🌟 CORRECCIÓN CRÍTICA: Instanciar la serie de predicción dentro del constructor del gráfico
+    const predictionSeriesL = chart.addSeries(LineSeries, {
+      color: '#F3BA2F',            // Amarillo Binance
+      lineWidth: 4,
+      lineStyle: LineStyle.Dotted, // Línea punteada para denotar que es una estimación futura
+      title: 'Proyección KPI C',
+    });
+
+    const predictionSeriesR = chart.addSeries(LineSeries, {
+      color: '#2ff339',            // Amarillo Binance
+      lineWidth: 4,
+      lineStyle: LineStyle.Dotted, // Línea punteada para denotar que es una estimación futura
+      title: 'Proyección KPI R',
+    });
+
+    const predictionSeriesS = chart.addSeries(LineSeries, {
+      color: '#742ff3',            // Amarillo Binance
+      lineWidth: 4,
+      lineStyle: LineStyle.Dotted, // Línea punteada para denotar que es una estimación futura
+      title: 'Proyección KPI S',
+    });
+
+
     chartRef.current = chart;
     candleSeriesRef.current = candleSeries;
     ema20SeriesRef.current = ema20Series;
     ema50SeriesRef.current = ema50Series;
     ema200SeriesRef.current = ema200Series;
+    predictionSeriesRefL.current = predictionSeriesL; // Guardamos la referencia persistente
+    predictionSeriesRefS.current = predictionSeriesS; // Guardamos la referencia persistente
+    predictionSeriesRefR.current = predictionSeriesR; // Guardamos la referencia persistente
 
     const handleResize = () => {
       if (chartContainerRef.current && chartRef.current) {
@@ -66,11 +97,15 @@ export const useCandleChartEffects = (
       ema20SeriesRef.current = null;
       ema50SeriesRef.current = null;
       ema200SeriesRef.current = null;
+      predictionSeriesRefL.current = null; // Limpieza defensiva del puntero
+      predictionSeriesRefR.current = null; // Limpieza defensiva del puntero
+      predictionSeriesRefS.current = null; // Limpieza defensiva del puntero
+
     };
   }, []);
 
   const updateChartCandle = useCallback(() => {
-    // Si las series no están inicializadas o no hay datos, no hacemos nada
+    // Si las series básicas no están inicializadas o no hay datos, retenemos la ejecución
     if (!candleSeriesRef.current || !data || data.length === 0) return;
 
     const closePrices = data.map((item: any) => parseFloat(item.close));
@@ -92,18 +127,10 @@ export const useCandleChartEffects = (
     const formattedEma50 = times.map((t: any, i: number) => ({ time: t, value: ema50Data[i] })).filter(d => d.value !== null);
     const formattedEma200 = times.map((t: any, i: number) => ({ time: t, value: ema200Data[i] })).filter(d => d.value !== null);
 
-    // CORRECCIÓN DE DETECCIÓN: Comprobamos de forma segura si la serie está vacía en lightweight-charts
-    // Usar setData() si es el primer bloque pesado de datos históricos, o si el WebSocket nos envía una actualización continua
-    // Si estás manejando un array "rawKlines" del WebSocket que crece en tamaño, el enfoque óptimo para sincronizar es pasarle el bloque completo,
-    // o discriminar basándonos en si la última vela es un tick en tiempo real o no finalizado (isFinal).
-    // Para simplificar y asegurar que se refresque sin duplicados, le inyectamos .setData completo si es una carga de cambio de moneda o recarga general
-    
-    // Si deseas rendimiento fluido en tiempo real sin redibujar todo el historial cada segundo:
+    // Renderizado por discriminación WebSocket (Ticks en curso vs Historicos)
     if (data.length <= 2 || (data[data.length - 1] && data[data.length - 1].isFinal === false)) {
-      // Es un tick de WebSocket en tiempo real de la vela actual en desarrollo -> Hacemos .update()
       const lastIndex = formattedCandles.length - 1;
       candleSeriesRef.current.update(formattedCandles[lastIndex]);
-
       const lastEma20 = formattedEma20[formattedEma20.length - 1];
       if (lastEma20) ema20SeriesRef.current?.update(lastEma20 as any);
 
@@ -113,16 +140,38 @@ export const useCandleChartEffects = (
       const lastEma200 = formattedEma200[formattedEma200.length - 1];
       if (lastEma200) ema200SeriesRef.current?.update(lastEma200 as any);
     } else {
-      // Es la carga histórica inicial o una vela que acaba de cerrar definitivamente -> Volcamos el set completo
       candleSeriesRef.current.setData(formattedCandles);
       ema20SeriesRef.current?.setData(formattedEma20 as any);
       ema50SeriesRef.current?.setData(formattedEma50 as any);
       ema200SeriesRef.current?.setData(formattedEma200 as any);
     }
+    // 🌟 ACTUALIZACIÓN SÍNCRONA DE LA PROYECCIÓN DENTRO DEL RENDER LOOP
+    if (predictionSeriesRefL.current) {
+      if (predictionData?.chartista && predictionData.chartista.length > 0) {
+        predictionSeriesRefL.current.setData(predictionData.chartista);
+      } else {
+        predictionSeriesRefL.current.setData([]);
+      }
+    }
+    if (predictionSeriesRefR.current) {
+      if (predictionData?.realista && predictionData.realista.length > 0) {
+        predictionSeriesRefR.current.setData(predictionData.realista);
+      } else {
+        predictionSeriesRefR.current.setData([]);
+      }
+    }
+    if (predictionSeriesRefS.current) {
+      if (predictionData?.sentimental && predictionData.sentimental.length > 0) {
+        predictionSeriesRefS.current.setData(predictionData.sentimental);
+      } else {
+        predictionSeriesRefS.current.setData([]);
+      }
+    }
 
-  }, [data, calculateEMA]);
 
-  // EFECTO 1: Inicialización del gráfico (Una sola vez al montar el componente)
+  }, [data, calculateEMA, predictionData]); // Se añade predictionData como dependencia del cálculo estable
+
+  // EFECTO 1: Inicialización estructural (Gráfico nativo)
   useEffect(() => {
     const cleanup = createChartCandle();
     return () => {
@@ -130,8 +179,7 @@ export const useCandleChartEffects = (
     };
   }, [createChartCandle]);
 
-  // EFECTO 2: ¡AQUÍ ESTÁ EL CAMBIO CRÍTICO! 
-  // Escucha cambios en 'data' para inyectarle los nuevos precios al gráfico en tiempo real
+  // EFECTO 2: Observador reactivo de datos en tiempo real
   useEffect(() => {
     updateChartCandle();
   }, [data, updateChartCandle]); 

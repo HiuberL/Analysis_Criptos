@@ -1,3 +1,4 @@
+import { useConfiguration } from "../Configuration/useConfiguration";
 import { useDashboardEffects } from "./useDashboardEffects";
 import { useDashboardHandlers } from "./useDashboardHandlers";
 import { useDashboardState } from "./useDashboardState";
@@ -5,7 +6,8 @@ import { useDashboardState } from "./useDashboardState";
 export const useDashboard = () => {
 
   const state = useDashboardState();
-  const effects = useDashboardEffects(state);
+  const config = useConfiguration();
+  const effects = useDashboardEffects(state,config);
   const handlers = useDashboardHandlers(state);
   return {
     search: state.search,

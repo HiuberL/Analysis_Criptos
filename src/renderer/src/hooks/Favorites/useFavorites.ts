@@ -1,11 +1,13 @@
 import { useFavoritesHandlers } from "./useFavoritesHandlers";
 import { useFavoritesState } from "./useFavoritesState";
 import { useFavoritesEffects } from "./useFavoritesEffects"; // Asegúrate de importar tus efectos si usas loadSymbols
+import { useConfiguration } from "../Configuration/useConfiguration";
 
 export const useFavorites = () => {
   const state = useFavoritesState();
   const handlers = useFavoritesHandlers(state);
-  const effects = useFavoritesEffects(state);
+  const config = useConfiguration();
+  const effects = useFavoritesEffects(state, config);
   
 return {
     search: state.search,

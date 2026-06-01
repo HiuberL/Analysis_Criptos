@@ -3,6 +3,8 @@ import { SubLoading } from './SubLoading';
 import { CandleChart } from './CandleChart';
 import { TradeInfoPanel } from '../shared/TradeInfo';
 import { useAnalysisView } from '@renderer/hooks/AnalysisView/useAnalysisView';
+import { getPricePredictionScore } from '@renderer/utils/Indicators';
+import { generatePriceProjection } from '@renderer/utils/predictionEngine';
 
 interface AnalysisViewProps {
   symbol: string;
@@ -18,12 +20,35 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
     getRsiColorClass,
     trendColor,
     scoreRisk,
-    pivotLevels
+    pivotLevels,
+    handleCopyBlog,
+    whaleBuyVolume,
+    whaleSellVolume,
+    whaleTrack,
+    globalTrack,
+    globalTrackDetail
   } = useAnalysisView(symbol,styles);
 
   if (loading) return <SubLoading message={`Analizando ${symbol} (${timeframe})...`} />;
   if (!data) return <p className={styles.message}>No hay datos suficientes para analizar {symbol}.</p>;
-
+  const resume = getPricePredictionScore(data.rsi,data.currentPrice,data.ema200,whaleTrack);
+  const futrProjection = generatePriceProjection(
+    rawKlines,
+    data.currentPrice,
+    {
+      rsi: data.rsi,
+      volume: data.volume,
+      ema20: data.ema20,
+      ema50: data.ema50,
+      ema200: data.ema200
+    },
+    pivotLevels,
+    globalTrackDetail,
+    whaleTrack,
+    scoreRisk.score?.total,
+    data.trend,
+    timeframe
+  );
   return (
     <div className={styles.container}>
       <div className={styles.headerRow}>
@@ -34,15 +59,23 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
           <button className={timeframe === '1h' ? styles.active : ''} onClick={() => setTimeframe('1h')}>1H</button>
           <button className={timeframe === '1d' ? styles.active : ''} onClick={() => setTimeframe('1d')}>1D</button>
           <button className={timeframe === '1M' ? styles.active : ''} onClick={() => setTimeframe('1M')}>1M</button>
+          {/* BOTÓN NUEVO PARA COPIAR AL BLOG */}
+          <button 
+            className={styles.copyBlogButton} 
+            onClick={handleCopyBlog}
+            title="Copiar informe formateado para Blog"
+          >
+            📋 Copiar Informe
+          </button>
         </div>
       </div>
 
       <div className={styles.chartWrapper} style={{ marginBottom: '20px', height: '400px' }}>
-        <CandleChart data={rawKlines} />
+        <CandleChart data={rawKlines} predict={futrProjection} />
       </div>
 
       {/* Panel integrado */}
-      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels}/>
+      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleTrack={whaleBuyVolume-whaleSellVolume} whaleFuture={whaleTrack} veredict={resume} globalTrack={globalTrack}/>
 
       <div className={styles.cardsGrid}>
         <div className={styles.card}>

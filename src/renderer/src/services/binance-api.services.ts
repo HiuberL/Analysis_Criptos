@@ -1,5 +1,5 @@
 // src/renderer/src/services/binanceApi.ts
-import { KlineData, SymbolInfo } from "@renderer/interfaces/binance.interface";
+import { KlineData, SymbolInfo, WhaleTrade } from "@renderer/interfaces/binance.interface";
 
 const BASE_URL = import.meta.env.VITE_API_BINANCE;
 const API_KEY = import.meta.env.VITE_BINANCE_API_KEY;
@@ -11,7 +11,7 @@ const API_KEY = import.meta.env.VITE_BINANCE_API_KEY;
 // En tu archivo de servicios donde tienes subscribeToKlines
 export const fetchKlines = async (
   symbol: string = 'BTCUSDT', 
-  interval: '15m' |'1h' | '1d'| '1M' = '1h',
+  interval: '15m' |'1h' | '1d'| '1M' = '1d',
   limit: number = 100
 ): Promise<KlineData[]> => {
   try {
@@ -101,7 +101,7 @@ export const getOpportunityScore = (symbolData: any, ema200: number, rsi: number
  * OBTENCIÓN EFICIENTE: Trae toda la lista y precios en solo 2 peticiones.
  * Evita el bloqueo por Rate Limit (error 429).
  */
-export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
+export const fetchAvailableSymbols = async (quouteOut,order): Promise<SymbolInfo[]> => {
   try {
     const [exchangeResponse, tickerResponse] = await Promise.all([
       fetch(`${BASE_URL}/exchangeInfo`),
@@ -119,7 +119,7 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
     }]));
 
     return exchangeData.symbols
-      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === 'USDT')
+      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === quouteOut)
       .map((item: any) => {
         const stats = statsMap.get(item.symbol) || { price: '0.00', volume: 0, change: 0 };
         return {
@@ -136,11 +136,21 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
       .filter((item: SymbolInfo) => {
         const absChange = Math.abs(item.change);
         // Filtramos monedas que se mueven más de 1% pero menos de 10% (volatilidad saludable)
-        return absChange > 1 && absChange < 10;
+        return absChange >= 0 && absChange < 20;
       })
       .filter((item: SymbolInfo) => parseFloat(item.price) > 0.0001)
       // ----------------------------------------
-      .sort((a: SymbolInfo, b: SymbolInfo) => b.volume - a.volume);
+      .sort((a: SymbolInfo, b: SymbolInfo) => {
+        if(order === "precio"){
+          return(Number(b.price) - Number(a.price));
+        }
+        if(order === "volumen"){
+          return(Number(b.volume) - Number(a.volume));
+        }
+        if(order === "cambio"){
+          return(Number(b.change) - Number(a.change));
+        }
+      });
 
   } catch (error) {
     console.error('Error al filtrar símbolos:', error);
@@ -148,7 +158,7 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
   }
 };
 
-export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => {
+export const fetchAvailableSymbolsNoFilter = async (quouteOut): Promise<SymbolInfo[]> => {
   try {
     const [exchangeResponse, tickerResponse] = await Promise.all([
       fetch(`${BASE_URL}/exchangeInfo`),
@@ -166,7 +176,7 @@ export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => 
     }]));
 
     return exchangeData.symbols
-      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === 'USDT')
+      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === quouteOut)
       .map((item: any) => {
         const stats = statsMap.get(item.symbol) || { price: '0.00', volume: 0, change: 0 };
         return {
@@ -179,7 +189,7 @@ export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => 
         };
       })
       // ----------------------------------------
-      .sort((a: SymbolInfo, b: SymbolInfo) => b.volume - a.volume);
+      .sort((a: SymbolInfo, b: SymbolInfo) => b.price - a.price);
 
   } catch (error) {
     console.error('Error al filtrar símbolos:', error);
@@ -203,4 +213,136 @@ export const subscribeToPrice = (symbol: string, onMessage: (price: string) => v
   
   // Retorna la función para cerrar la conexión cuando el componente se desmonte
   return () => ws.close();
+};
+
+export const subscribeToWhaleTrades = (
+  symbol: string,
+  minUsdtThreshold: number,
+  onWhaleTrade: (trade: WhaleTrade) => void
+) => {
+  const streamName = `${symbol.toLowerCase()}@trade`;
+  const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${streamName}`);
+
+  ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    // Mapeo de variables nativas de Binance @trade stream:
+    // p: precio, q: cantidad, T: timestamp, m: indica si el comprador fue el creador (mercado venta o compra)
+    const price = parseFloat(msg.p);
+    const quantity = parseFloat(msg.q);
+    const totalUsdt = price * quantity;
+
+    // Si la transacción supera nuestro umbral de "Ballena"
+    if (totalUsdt >= minUsdtThreshold) {
+      const whaleTrade: WhaleTrade = {
+        id: msg.t, // ID de la transacción
+        time: msg.T,
+        price,
+        quantity,
+        totalUsdt,
+        side: msg.m ? 'SELL' : 'BUY' // Si msg.m es true, golpeó el Bid (Venta), si es false golpeó el Ask (Compra)
+      };
+      
+      onWhaleTrade(whaleTrade);
+    }
+  };
+
+  ws.onerror = (err) => console.error(`Error en WebSocket WhaleTrades [${symbol}]:`, err);
+
+  // Retornamos la función de limpieza para el useEffect de React
+  return () => {
+    if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+      ws.close();
+      console.log(`Conexión cerrada para WhaleTrades: ${symbol}`);
+    }
+  };
+};
+
+export const fetchHistoricalWhaleTrades = async (
+  symbol: string,
+  minUsdtThreshold: number,
+  limit: number = 500
+): Promise<WhaleTrade[]> => {
+  try {
+    // Nota defensiva: Usamos la API pública de Spot de Binance
+    const response = await fetch(
+      `${BASE_URL}/trades?symbol=${symbol.toUpperCase()}&limit=${limit}`
+    );
+    
+    if (!response.ok) throw new Error('Error al consultar trades históricos');
+    
+    const rawTrades = await response.json();
+    const whaleTrades: WhaleTrade[] = [];
+
+    // Iteramos los datos históricos de Binance de atrás hacia adelante
+    for (const t of rawTrades) {
+      const price = parseFloat(t.price);
+      const quantity = parseFloat(t.qty);
+      const totalUsdt = price * quantity;
+
+      if (totalUsdt >= minUsdtThreshold) {
+        whaleTrades.push({
+          id: t.id,
+          time: t.time,
+          price,
+          quantity,
+          totalUsdt,
+          // En la API REST de Binance, 'isBuyerMaker' define el side.
+          // Si es true, la orden cruzó contra el Bid (Venta), si es false contra el Ask (Compra).
+          side: t.isBuyerMaker ? 'SELL' : 'BUY'
+        });
+      }
+    }
+
+    // Los ordenamos de más nuevo a más viejo para que se alineen con la UI
+    return whaleTrades.reverse();
+  } catch (error) {
+    console.error(`Error cargando historial de ballenas para ${symbol}:`, error);
+    return []; // Fallback seguro para evitar romper la app
+  }
+};
+
+export const fetchWhaleLongShortRatio = async (symbol: string, period: string = '1d'): Promise<any[]> => {
+  try {
+    // Usamos la API de Binance Futures para datos del mercado (fapi)
+    const response = await fetch(
+      `https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol=${symbol.toUpperCase()}&period=${period}&limit=10`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Error en la API de Ratio: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener datos de ballenas:", error);
+    return [];
+  }
+};
+export const fetchGlobalLongShortRatio = async (symbol: string, period: string = '1h'): Promise<any[]> => {
+  try {
+    const response = await fetch(
+      `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol.toUpperCase()}&period=${period}&limit=5`
+    );
+    
+    if (!response.ok) throw new Error('Error al consultar datos globales');
+    return await response.json();
+  } catch (error) {
+    console.error("Error en fetchGlobalLongShortRatio:", error);
+    return [];
+  }
+};
+
+export const fetchTopTraderTakerRatio = async (symbol: string, period: string = '1h'): Promise<any[]> => {
+  try {
+    const response = await fetch(`https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=${symbol.toUpperCase()}&period=${period}&limit=1`);
+    return response.ok ? await response.json() : [];
+  } catch { return []; }
+};
+
+// C. NUEVO: Interés Abierto Actual (Trae openInterest)
+export const fetchOpenInterest = async (symbol: string): Promise<any> => {
+  try {
+    const response = await fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol.toUpperCase()}`);
+    return response.ok ? await response.json() : null;
+  } catch { return null; }
 };

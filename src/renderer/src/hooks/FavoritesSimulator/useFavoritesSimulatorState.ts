@@ -4,17 +4,18 @@ import { useRef, useState } from 'react';
 
 export const useFavoritesSimulatorState = () => {
 
-  const [globalAmount, setGlobalAmount] = useState<string>('');
+  const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({});
+  const [customMarketPrices, setCustomMarketPrices] = useState<Record<string, string>>({});
   
   const [simulation, setSimulation] = useState<GlobalSimulation>(() => {
     const saved = localStorage.getItem("crypto_global_simulation");
-    return saved ? JSON.parse(saved) : { investmentPerCoin: 0, entryPrices: {}, status: 'idle' };
+    return saved ? JSON.parse(saved) : { investmentPerCoin: 0, entryPrices: {}, marketPrice: {}, currentPrice:{}, status: 'idle' };
   });
 
   return {
-    globalAmount, 
-    setGlobalAmount,
     simulation, 
-    setSimulation
+    setSimulation,
+    customAmounts, setCustomAmounts,
+    customMarketPrices, setCustomMarketPrices
   };
 };

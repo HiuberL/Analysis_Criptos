@@ -15,11 +15,13 @@ export const useFavoritesSimulator = (
   const handler = useFavoritesSimulatorHandler(rawSymbols,favorites,state);
   return {
     isRunning: handler.isRunning,
-    globalAmount: state.globalAmount,
-    setGlobalAmount: state.setGlobalAmount,
     handleStartGlobalSimulation: handler.handleStartGlobalSimulation,
     handleResetGlobalSimulation: handler.handleResetGlobalSimulation,
     getCurrentMarketPrice: handler.getCurrentMarketPrice,
-    simulation: state.simulation    
+    simulation: state.simulation,
+    handleCustomAmountChange: handler.handleCustomAmountChange,
+    handleCustomPriceChange: handler.handleCustomPriceChange,
+    customMarketPrices: state.customMarketPrices,
+    customAmounts: state.customAmounts
   };
 };

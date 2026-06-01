@@ -31,6 +31,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <NavLink to="/simulator" className={({ isActive }) => isActive ? styles.active : styles.inactive}>
             Simulador
           </NavLink>
+          <NavLink to="/configuracion" className={({ isActive }) => isActive ? styles.active : styles.inactive}>
+            Configuraciones
+          </NavLink>
         </div> 
       </div>
 

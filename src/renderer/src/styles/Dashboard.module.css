@@ -43,21 +43,6 @@ body {
   font-size: 18px;
 }
 
-.searchInput {
-  background-color: #2b3139;
-  border: 1px solid #474f59;
-  border-radius: 4px;
-  color: #eaecef;
-  padding: 8px 12px;
-  width: 250px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.searchInput:focus {
-  border-color: #F0B90B;
-}
-
 .contentGrid {
   display: flex;
   gap: 20px;

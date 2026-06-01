@@ -10,6 +10,7 @@ interface CryptoTableProps {
   favorites: string[] | null,
   toggleFavorite: (symbol:string) => void;
   onRefresh: () => void; // Prop para refrescar
+  handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const CryptoTable: React.FC<CryptoTableProps> = ({
@@ -19,19 +20,27 @@ export const CryptoTable: React.FC<CryptoTableProps> = ({
   selectedSymbol,
   favorites,
   toggleFavorite,
-  onRefresh
+  onRefresh,
+  handleSearchChange
 }) => {
   return (
     <div className={styles.cryptoTableContainer}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 className={styles.title}>Mercados Spot (USDT)</h3>
-        <button 
-          onClick={onRefresh} 
-          disabled={loading}
-          className={styles.refreshButton}
-        >
-          {loading ? 'Cargando...' : '⟳ Actualizar'}
-        </button>
+        <div className={styles.containerSearch}>
+          <input 
+            type="text"
+            className={styles.searchInput}
+            onChange={handleSearchChange}
+          />
+          <button 
+            onClick={onRefresh} 
+            disabled={loading}
+            className={styles.refreshButton}
+          >
+            {loading ? 'Cargando...' : '⟳ Actualizar'}
+          </button>
+        </div>
       </div>
       <div className={styles.containerTable}>
         <table className={styles.cryptoTable}>

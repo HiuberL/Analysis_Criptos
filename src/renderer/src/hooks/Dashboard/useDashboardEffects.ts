@@ -1,9 +1,11 @@
 import { fetchAvailableSymbols } from '@renderer/services/binance-api.services';
 import { useEffect, useCallback, useState, useMemo } from 'react';
 import { useDashboardState } from './useDashboardState';
+import { useConfiguration } from '../Configuration/useConfiguration';
 
 export const useDashboardEffects = (
-    state: ReturnType<typeof useDashboardState>
+    state: ReturnType<typeof useDashboardState>,
+    config: ReturnType<typeof useConfiguration>
 ) => {
   const {
     setLoading,
@@ -12,8 +14,12 @@ export const useDashboardEffects = (
     favorites
   }= state;
 
+  const {
+    getConfigValue
+  } = config;
+
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = Number(getConfigValue("paginacion"));
 
   const toggleFavorite = (symbol: string) => {
     setFavorites(prev => 
@@ -25,7 +31,7 @@ export const useDashboardEffects = (
   const loadSymbols = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchAvailableSymbols();
+      const data = await fetchAvailableSymbols(getConfigValue("conversor"),getConfigValue("sort"));
       setSymbols(data);
     } catch (error) {
       console.error("Error al cargar símbolos:", error);

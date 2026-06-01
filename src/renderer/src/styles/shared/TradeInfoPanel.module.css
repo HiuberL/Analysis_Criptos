@@ -56,10 +56,15 @@
   background-color: #1e2329;
   border: 1px solid #2b3139;
   border-radius: 8px;
+  gap:2px;
   padding: 10px 16px;
   flex-grow: 1;
 }
 
+.statusBoxData{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  
+}
 /* --- GRID OPERATIVO: Parámetros del Bot (SL y TP) --- */
 .gridTitle {
   color: #eaebed;
@@ -67,10 +72,14 @@
   font-weight: 600;
   margin-top: 4px;
 }
+.containerInformationSection{
+  display: flex;
+  width: 100%;
+}
 
 .levelsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
@@ -98,6 +107,7 @@
 
 /* --- NUEVA SECCIÓN: Puntos de Soporte y Resistencia en el Canal --- */
 .technicalSection {
+  flex:1;
   background-color: #181a20;
   border-radius: 8px;
   padding: 12px;
@@ -106,7 +116,7 @@
 
 .techRowGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   margin-top: 6px;
 }
