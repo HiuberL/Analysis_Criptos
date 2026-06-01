@@ -2,10 +2,12 @@ import { fetchGlobalLongShortRatio, fetchHistoricalWhaleTrades, fetchOpenInteres
 import { useWhaleTrackerState } from "./useWhaleTrackerState";
 import { useEffect } from "react";
 import { calculateWhaleScore } from "@renderer/utils/Indicators";
+import { useConfiguration } from "../Configuration/useConfiguration";
 
 export const useWhaleTrackerEffects = (
     state: ReturnType<typeof useWhaleTrackerState>,
-    symbol: string, thresholdUsdt: number = 50000,
+    symbol: string,
+    config: ReturnType<typeof useConfiguration>,
     timeStamp
 ) => {
   const {
@@ -18,6 +20,9 @@ export const useWhaleTrackerEffects = (
     globalTrackDetail, setGlobalTrackDetail
   } = state;
   
+  const {
+    getConfigValue
+  } = config;
   useEffect(() => {
     let isMounted = true; // Flag defensivo para evitar memory leaks si cambian rápido de moneda
     let unsubscribeWebSocket: (() => void) | null = null;
@@ -30,7 +35,7 @@ export const useWhaleTrackerEffects = (
     const initWhaleTracker = async () => {
       // 1. CARGA HISTÓRICA INICIAL (Pasado cercano)
       // Jalamos los últimos 1000 trades para buscar ballenas recientes
-      const history = await fetchHistoricalWhaleTrades(symbol, thresholdUsdt, 1000);
+      const history = await fetchHistoricalWhaleTrades(symbol, Number(getConfigValue("threshold")), Number(getConfigValue("whaleVolume")));
       
       if (!isMounted) return;
 
@@ -49,7 +54,7 @@ export const useWhaleTrackerEffects = (
 
       // 2. CONEXIÓN EN TIEMPO REAL (Futuro)
       // Una vez montado el pasado, nos enganchamos al WebSocket para actualizar en vivo
-      unsubscribeWebSocket = subscribeToWhaleTrades(symbol, thresholdUsdt, (newTrade) => {
+      unsubscribeWebSocket = subscribeToWhaleTrades(symbol, Number(getConfigValue("threshold")), (newTrade) => {
         if (!isMounted) return;
 
         setWhaleTrades((prevTrades) => {
@@ -77,7 +82,7 @@ export const useWhaleTrackerEffects = (
         unsubscribeWebSocket();
       }
     };
-  }, [symbol, thresholdUsdt]);
+  }, [symbol, Number(getConfigValue("threshold"))]);
   const totalVolume = whaleBuyVolume + whaleSellVolume;
   const buyRatio = totalVolume > 0 ? (whaleBuyVolume / totalVolume) * 100 : 50;
 

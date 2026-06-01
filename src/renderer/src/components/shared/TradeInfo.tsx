@@ -16,13 +16,14 @@ interface TradeInfoProps {
   // Valores crudos de los pivotes calculados en el gráfico
   technicalLevels: SupportResistanceLevels;
   scoreRisk: RiskEvaluate;
-  whaleTrack: number;
   whaleFuture: any;
   veredict: any;
-  globalTrack: any
+  globalTrack: any;
+  whaleSellVolume:any;
+  whaleBuyVolume:any
 }
 
-export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLevels, scoreRisk, whaleTrack, whaleFuture, veredict, globalTrack }) => {
+export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLevels, scoreRisk, whaleSellVolume,whaleBuyVolume, whaleFuture, veredict, globalTrack }) => {
   if (!levels || !scoreRisk || !levels.entryPrice) {
     return <div className={styles.panelEmpty}>Esperando señal de mercado...</div>;
   }
@@ -31,6 +32,7 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
   const totalPoints = scoreRisk.score?.total !== undefined ? scoreRisk.score.total : 0;
   const labelWhale = scoreRisk.score.breakdown[4].value;
   const globalTrackData = Number((globalTrack.long- globalTrack.short).toFixed(2));
+  const whaleTrack = whaleBuyVolume - whaleSellVolume;
   return (
     <div className={styles.panelContainer}>
 
@@ -55,9 +57,9 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
               )}
             </strong>
             <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>{whaleTrack > 0 ? (
-              <span >🟢 (${whaleTrack.toFixed(2)})</span>
+              <span >🟢 (+ ${whaleBuyVolume.toFixed(2)} ${whaleSellVolume.toFixed(2)})</span>
             ) : whaleTrack < 0 ? (
-              <span>🔴 (${whaleTrack.toFixed(2)})</span>
+              <span>🔴 (+ ${whaleBuyVolume.toFixed(2)} ${whaleSellVolume.toFixed(2)})</span>
             ) : (
               <span>🟡 (${whaleTrack.toFixed(2)})</span>
             )} / {labelWhale}</strong>

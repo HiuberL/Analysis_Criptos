@@ -18,6 +18,8 @@ export const DEFAULT_CONFIG: ConfigItem[] = [
   { label: "Apalancamiento", dato: "apalancamiento", type:"number", object:"input", options:[], helptext:"Apalancamiento para cálculo de valores", value: "2" },
   { label: "Máximo por Página", dato: "paginacion", type:"number", object:"input", options:[], helptext:"Total de filas por página en consultas", value: "25" },
   { label: "Ordenar Principal", dato: "sort", type:"text", object:"dropdown", options:["cambio","volumen","precio"], helptext:"Ordenamiento de informacion en ventana principal", value: "precio" },
+  { label: "Ordenes Ballenas", dato: "whaleVolume", type:"number", object:"input", options:[], helptext:"Total de ordenes analizadas para verificar flujo (Historico)", value: "1000" },
+
 ];
 
 export const useConfigurationState = () => {

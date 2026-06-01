@@ -9,7 +9,7 @@ export const useWhaleTracker = (symbol, stateAnalisis: ReturnType<typeof useAnal
   } = stateAnalisis;
   const config = useConfiguration();
   const state = useWhaleTrackerState();
-  const effects = useWhaleTrackerEffects(state,symbol,Number(config.getConfigValue("threshold")),timeframe);
+  const effects = useWhaleTrackerEffects(state,symbol,config,timeframe);
   
 return {
     whaleTrades : state.whaleTrades,

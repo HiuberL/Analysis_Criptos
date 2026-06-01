@@ -75,7 +75,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
       </div>
 
       {/* Panel integrado */}
-      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleTrack={whaleBuyVolume-whaleSellVolume} whaleFuture={whaleTrack} veredict={resume} globalTrack={globalTrack}/>
+      <TradeInfoPanel levels={tradeLevels} scoreRisk= {scoreRisk} technicalLevels={pivotLevels} whaleBuyVolume={whaleBuyVolume} whaleSellVolume={whaleSellVolume} whaleFuture={whaleTrack} veredict={resume} globalTrack={globalTrack}/>
 
       <div className={styles.cardsGrid}>
         <div className={styles.card}>

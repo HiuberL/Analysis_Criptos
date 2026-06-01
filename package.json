@@ -1,6 +1,6 @@
 {
   "name": "logic-binance",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Aplicativo para monitorear criptos según indicadores",
   "main": "./out/main/index.js",
   "author": "example.com",
