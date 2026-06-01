@@ -28,7 +28,6 @@ export const useFavoritesSimulatorHandler = (
   const handleStartGlobalSimulation = () => {
     const amount = Number(Object.keys(customAmounts).length);
     const favoritoTotal = Number(favorites.length);
-    console.log(amount);
     if (amount === 0 || amount != favoritoTotal) {
       alert("Por favor introduce un monto válido mayor a 0.");
       return;
