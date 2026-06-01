@@ -57,12 +57,12 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
               )}
             </strong>
             <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>{whaleTrack > 0 ? (
-              <span >🟢 (+ ${whaleBuyVolume.toFixed(2)} ${whaleSellVolume.toFixed(2)})</span>
+              <span >🟢 (Compras: +${whaleBuyVolume.toFixed(2)} Ventas:-${whaleSellVolume.toFixed(2)})</span>
             ) : whaleTrack < 0 ? (
-              <span>🔴 (+ ${whaleBuyVolume.toFixed(2)} ${whaleSellVolume.toFixed(2)})</span>
+              <span>🔴 (Compras: +${whaleBuyVolume.toFixed(2)} Ventas:-${whaleSellVolume.toFixed(2)})</span>
             ) : (
-              <span>🟡 (${whaleTrack.toFixed(2)})</span>
-            )} / {labelWhale}</strong>
+              <span>🟡 Sin Moviiento: (${whaleTrack.toFixed(2)})</span>
+            )}</strong>
 
             <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>
               <span style={{ color: veredict.color }}>{veredict.verdict} ({veredict.power}%)</span>
