@@ -19,7 +19,8 @@ export const Dashboard: React.FC = () => {
     handleSelectSymbol,
     loadSymbols,
     favorites,
-    toggleFavorite
+    toggleFavorite,
+    handleSearchChange
   } = useDashboard();
 
   if (loading) {
@@ -38,6 +39,7 @@ export const Dashboard: React.FC = () => {
             onRefresh={loadSymbols}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
+            handleSearchChange= {handleSearchChange}
           />
           <Pagination 
             currentPage={currentPage}

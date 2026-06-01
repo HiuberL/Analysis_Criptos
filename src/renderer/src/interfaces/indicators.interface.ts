@@ -11,8 +11,9 @@ export interface RiskFactor {
   points: number; // Puntos añadidos al score de riesgo
 }
 export interface GlobalSimulation {
-  investmentPerCoin: number;
+  investmentPerCoin:{ [symbol: string]: number };
   entryPrices: { [symbol: string]: number };
+  marketPrice: { [symbol: string]: number };
   status: 'idle' | 'running';
 }
 
@@ -25,7 +26,20 @@ export interface CandleData {
   volume: number | string;
 }
 
-export interface AnalysisResult {
+export interface Indicators {
+  rsi: number;
+  volume: number;
+  ema20: number;
+  ema50: number;
+  ema200: number;
+}
+
+export interface MultipleProjections {
+  sentimental: PredictionPoint[];
+  chartista: PredictionPoint[];
+  realista: PredictionPoint[];
+}
+export interface AnalysisResultData {
   currentPrice: number;
   lastPrice: number;
   ema20: number;
@@ -51,6 +65,18 @@ export interface Score{
 }
 
 export interface GlobalDataFuture{
-  long: number,
+  long: number;
   short:number
+}
+
+export interface GlobalTrack{
+  longShortRatio: number;
+  buyVol: number;
+  sellVol: number;
+  openInterest: number;
+}
+
+export interface PredictionPoint {
+  time: number;
+  value: number;
 }

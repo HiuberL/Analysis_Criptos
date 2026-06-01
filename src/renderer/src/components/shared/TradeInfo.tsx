@@ -28,7 +28,6 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
   }
   const labelText = scoreRisk.label || "Analizando...";
   const labelColor = scoreRisk.color || "#faad14";
-
   const totalPoints = scoreRisk.score?.total !== undefined ? scoreRisk.score.total : 0;
   const labelWhale = scoreRisk.score.breakdown[4].value;
   const globalTrackData = Number((globalTrack.long- globalTrack.short).toFixed(2));

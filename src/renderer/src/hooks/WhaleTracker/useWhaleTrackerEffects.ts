@@ -1,4 +1,4 @@
-import { fetchGlobalLongShortRatio, fetchHistoricalWhaleTrades, fetchWhaleLongShortRatio, subscribeToWhaleTrades } from "@renderer/services/binance-api.services";
+import { fetchGlobalLongShortRatio, fetchHistoricalWhaleTrades, fetchOpenInterest, fetchTopTraderTakerRatio, fetchWhaleLongShortRatio, subscribeToWhaleTrades } from "@renderer/services/binance-api.services";
 import { useWhaleTrackerState } from "./useWhaleTrackerState";
 import { useEffect } from "react";
 import { calculateWhaleScore } from "@renderer/utils/Indicators";
@@ -14,7 +14,8 @@ export const useWhaleTrackerEffects = (
     whaleSellVolume, setWhaleSellVolume,
     setLoading,
     setWhaleTrack,
-    globalTrack, setGlobalTrack
+    globalTrack, setGlobalTrack,
+    globalTrackDetail, setGlobalTrackDetail
   } = state;
   
   useEffect(() => {
@@ -110,6 +111,39 @@ export const useWhaleTrackerEffects = (
       isMounted = false; // Evita fugas de memoria al cambiar rápido de moneda
     };
   }, [symbol]);
+
+useEffect(() => {
+    const loadFuturesData = async () => {
+      // Convertimos la temporalidad de tu gráfico al formato que acepta la API de data de futuros
+      const period = timeStamp;
+
+      // Disparamos las 3 llamadas en paralelo
+      const [ratioData, volumeData, interestData] = await Promise.all([
+        fetchGlobalLongShortRatio(symbol, period),
+        fetchTopTraderTakerRatio(symbol, period),
+        fetchOpenInterest(symbol)
+      ]);
+
+      // 🌟 Procesamiento defensivo y asignación a tu interfaz
+      const lastRatio = ratioData && ratioData.length > 0 ? ratioData[0] : null;
+      const lastVolume = volumeData && volumeData.length > 0 ? volumeData[0] : null;
+
+      // Calculamos los volumes proporcionales usando el long/short position ratio de los top traders
+      const positionRatio = lastVolume ? parseFloat(lastVolume.longShortRatio) : 1.0;
+      // Simulamos volúmenes relativos basados en el ratio para tu algoritmo quant
+      const simulatedBuyVol = positionRatio >= 1 ? positionRatio : 1.0;
+      const simulatedSellVol = positionRatio < 1 ? (1 / positionRatio) : 1.0;
+
+      setGlobalTrackDetail({
+        longShortRatio: lastRatio ? parseFloat(lastRatio.longShortRatio) : 1.0,
+        buyVol: simulatedBuyVol,
+        sellVol: simulatedSellVol,
+        openInterest: interestData ? parseFloat(interestData.openInterest) : 0
+      });
+    };
+
+    if (symbol) loadFuturesData();
+  }, [symbol, timeStamp]);
 
   return {
     whaleTrades,

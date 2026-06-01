@@ -2,12 +2,14 @@ import { useEffect, useCallback } from 'react';
 import { useAnalysisViewState } from './useAnalysisViewState';
 import { fetchKlines, subscribeToKlines } from '@renderer/services/binance-api.services';
 import { calculatePivotSupports, calculateTrend } from '@renderer/utils/AnalisisResult';
-import { evaluateDropRisk, getPricePredictionScore, getTradeLevels } from '@renderer/utils/Indicators';
+import { evaluateDropRisk, getTradeLevels } from '@renderer/utils/Indicators';
+import { useConfiguration } from '../Configuration/useConfiguration';
 
 export const useAnalysisViewEffects = (
   symbol: string,
   state: ReturnType<typeof useAnalysisViewState>,
-  whaleBuyRatioRaw: number
+  whaleBuyRatioRaw: number,
+  config: ReturnType<typeof useConfiguration>
 ) => {
   const {
     setLoading,
@@ -19,6 +21,9 @@ export const useAnalysisViewEffects = (
     setPivotLevels
   } = state;
 
+  const {
+    getConfigValue
+  } = config;
   const AnalysisCalculateFetch = useCallback(() => {
     let active = true;
     let unsubscribe: () => void;
@@ -39,8 +44,7 @@ export const useAnalysisViewEffects = (
         const currentEma = initialTrend.ema200 ?? currentPrice;
         setPivotLevels(pivotLevels);
         const initialEvaluateRisk = evaluateDropRisk(initialTrend.currentPrice ?? 0, pivotLevels, currentRsi, currentEma,whaleBuyRatioRaw);
-        setTradeLevels(getTradeLevels(initialTrend.lastPrice || currentPrice, initialTrend.atr || 0));
-       
+        setTradeLevels(getTradeLevels(initialTrend.lastPrice || currentPrice, initialTrend.atr || 0,Number(getConfigValue("apalancamiento"))));
         setData(initialTrend);
         setScoreRisk(initialEvaluateRisk);
       }
@@ -62,7 +66,7 @@ export const useAnalysisViewEffects = (
         const currentEma = result?.ema200 ?? currentPrice;
         
         const evaluateRisk = evaluateDropRisk(result?.currentPrice ?? currentPrice, pivotLevels, currentRsi, currentEma,whaleBuyRatioRaw);
-        setTradeLevels(result ? getTradeLevels(result.lastPrice || currentPrice, result.atr || 0) : null);
+        setTradeLevels(result ? getTradeLevels(result.lastPrice || currentPrice, result.atr || 0, Number(getConfigValue("apalancamiento"))) : null,);
         
         setData(result);
         setScoreRisk(evaluateRisk);

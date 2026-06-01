@@ -101,7 +101,7 @@ export const getOpportunityScore = (symbolData: any, ema200: number, rsi: number
  * OBTENCIÓN EFICIENTE: Trae toda la lista y precios en solo 2 peticiones.
  * Evita el bloqueo por Rate Limit (error 429).
  */
-export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
+export const fetchAvailableSymbols = async (quouteOut,order): Promise<SymbolInfo[]> => {
   try {
     const [exchangeResponse, tickerResponse] = await Promise.all([
       fetch(`${BASE_URL}/exchangeInfo`),
@@ -119,7 +119,7 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
     }]));
 
     return exchangeData.symbols
-      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === 'USDT')
+      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === quouteOut)
       .map((item: any) => {
         const stats = statsMap.get(item.symbol) || { price: '0.00', volume: 0, change: 0 };
         return {
@@ -140,7 +140,17 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
       })
       .filter((item: SymbolInfo) => parseFloat(item.price) > 0.0001)
       // ----------------------------------------
-      .sort((a: SymbolInfo, b: SymbolInfo) => b.price - a.price);
+      .sort((a: SymbolInfo, b: SymbolInfo) => {
+        if(order === "precio"){
+          return(Number(b.price) - Number(a.price));
+        }
+        if(order === "volumen"){
+          return(Number(b.volume) - Number(a.volume));
+        }
+        if(order === "cambio"){
+          return(Number(b.change) - Number(a.change));
+        }
+      });
 
   } catch (error) {
     console.error('Error al filtrar símbolos:', error);
@@ -148,7 +158,7 @@ export const fetchAvailableSymbols = async (): Promise<SymbolInfo[]> => {
   }
 };
 
-export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => {
+export const fetchAvailableSymbolsNoFilter = async (quouteOut): Promise<SymbolInfo[]> => {
   try {
     const [exchangeResponse, tickerResponse] = await Promise.all([
       fetch(`${BASE_URL}/exchangeInfo`),
@@ -166,7 +176,7 @@ export const fetchAvailableSymbolsNoFilter = async (): Promise<SymbolInfo[]> => 
     }]));
 
     return exchangeData.symbols
-      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === 'USDT')
+      .filter((item: any) => item.status === 'TRADING' && item.quoteAsset === quouteOut)
       .map((item: any) => {
         const stats = statsMap.get(item.symbol) || { price: '0.00', volume: 0, change: 0 };
         return {
@@ -320,4 +330,19 @@ export const fetchGlobalLongShortRatio = async (symbol: string, period: string =
     console.error("Error en fetchGlobalLongShortRatio:", error);
     return [];
   }
+};
+
+export const fetchTopTraderTakerRatio = async (symbol: string, period: string = '1h'): Promise<any[]> => {
+  try {
+    const response = await fetch(`https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=${symbol.toUpperCase()}&period=${period}&limit=1`);
+    return response.ok ? await response.json() : [];
+  } catch { return []; }
+};
+
+// C. NUEVO: Interés Abierto Actual (Trae openInterest)
+export const fetchOpenInterest = async (symbol: string): Promise<any> => {
+  try {
+    const response = await fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol.toUpperCase()}`);
+    return response.ok ? await response.json() : null;
+  } catch { return null; }
 };

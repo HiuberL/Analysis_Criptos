@@ -12,7 +12,10 @@ function createWindow(): void {
   const mainWindow = new BrowserWindow({
     // He aumentado un poco el tamaño base para que quepa mejor tu tabla de Binance
     width: 1200, 
-    height: 800,
+    height: 720,
+    minWidth: 1024,       /* Evita que el usuario colapse la app y rompa el diseño */
+    minHeight: 600,  
+    center:true,  
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'win32' ? { icon } : {}),

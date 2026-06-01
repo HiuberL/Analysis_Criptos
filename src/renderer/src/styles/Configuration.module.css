@@ -1,0 +1,86 @@
+.containerConfig{
+    width: 100%;
+    padding: 20px;
+    display: grid;
+    align-content: start;
+    grid-template-columns: repeat(4, 1fr);
+    gap:20px;
+}
+.cardConfig{
+    align-items: center;
+    display: flex;
+    border-radius: 15px;
+    background-color: rgb(84, 84, 84);
+    padding: 20px;
+    margin-bottom: 10px;
+    height: 100px;
+    gap: 10px;
+    flex-direction: row;
+}
+.labelConfig{
+    width: 200px;
+}
+
+.inputConfig {
+  flex: 1;
+  text-align: right;
+  background-color: #1e2329; /* Fondo oscuro tipo Binance */
+  color: #eaebd3;            /* Texto claro */
+  font-size: 14px;
+  font-family: inherit;
+  padding: 10px 16px;
+  border: 1px solid #474d57; /* Borde sutil oscuro */
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputConfig::placeholder {
+  color: #707a8a;
+}
+
+.inputConfig:focus {
+  border-color: #fcd535; /* Amarillo cripto al enfocar */
+  box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.2);
+}
+
+/* Ocultar flechas nativas del input number */
+.inputConfig[type="number"]::-webkit-inner-spin-button,
+.inputConfig[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.inputConfig[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Dropdown (Select) */
+.selectConfig {
+  flex: 1;
+  text-align: right;
+  background-color: #1e2329;
+  color: #eaebd3;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 10px 16px;
+  border: 1px solid #474d57;
+  border-radius: 8px;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  direction: rtl; 
+}
+
+.selectConfig:focus {
+  border-color: #fcd535;
+  box-shadow: 0 0 0 3px rgba(252, 213, 53, 0.2);
+}
+
+.selectConfig option {
+  background-color: #1e2329;
+  color: #eaebd3;
+  text-align: right;
+  direction: ltr;
+}

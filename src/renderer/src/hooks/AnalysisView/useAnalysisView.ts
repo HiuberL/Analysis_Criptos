@@ -4,11 +4,13 @@ import { useAnalysisViewState } from './useAnalysisViewState';
 import { useAnalysisViewEffects } from './useAnalysisViewEffects';
 import { useAnalisysViewUtils } from './useAnalisysViewUtils';
 import { useWhaleTracker } from '../WhaleTracker/useWhaleTracker';
+import { useConfiguration } from '../Configuration/useConfiguration';
 
 export const useAnalysisView = (symbol: string, styles) => {
   const state = useAnalysisViewState();
-  const { buyRatio,whaleBuyVolume,whaleSellVolume,whaleTrack,globalTrack} = useWhaleTracker(symbol, 30000,state);
-  useAnalysisViewEffects(symbol, state,buyRatio);
+  const { buyRatio,whaleBuyVolume,whaleSellVolume,whaleTrack,globalTrack,globalTrackDetail} = useWhaleTracker(symbol,state);
+  const config = useConfiguration();
+  useAnalysisViewEffects(symbol, state,buyRatio,config);
   const utils = useAnalisysViewUtils(symbol,styles,state);
   
   return {
@@ -26,6 +28,8 @@ export const useAnalysisView = (symbol: string, styles) => {
     whaleBuyVolume: whaleBuyVolume,
     whaleSellVolume: whaleSellVolume,
     whaleTrack: whaleTrack,
-    globalTrack: globalTrack
+    globalTrack: globalTrack,
+    buyRatio: buyRatio,
+    globalTrackDetail:globalTrackDetail
   };
 };

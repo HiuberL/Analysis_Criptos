@@ -18,8 +18,8 @@ export const FavoritoView: React.FC = () => {
     setCurrentPage,
     handleSelectSymbol,
     favorites,
-    toggleFavorite
-
+    toggleFavorite,
+    handleSearchChange
   } = useFavorites();
 
   if (loading) {
@@ -37,6 +37,7 @@ export const FavoritoView: React.FC = () => {
             onSelectSymbol={handleSelectSymbol}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
+            handleSearchChange={handleSearchChange}
           />
           <Pagination 
             currentPage={currentPage}

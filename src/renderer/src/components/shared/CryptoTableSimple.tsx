@@ -9,6 +9,7 @@ interface CryptoTableSimpleProps {
   selectedSymbol: string | null;
   favorites: string[] | null,
   toggleFavorite: (symbol:string) => void;
+  handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const CryptoTableSimple: React.FC<CryptoTableSimpleProps> = ({
@@ -17,12 +18,20 @@ export const CryptoTableSimple: React.FC<CryptoTableSimpleProps> = ({
   onSelectSymbol,
   selectedSymbol,
   favorites,
-  toggleFavorite
+  toggleFavorite,
+  handleSearchChange
 }) => {
   return (
     <div className={styles.cryptoTableContainer}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 className={styles.title}>Mercados Spot (USDT)</h3>
+        <div className={styles.containerSearch}>
+          <input 
+            type="text"
+            className={styles.searchInput}
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
       
       <table className={styles.cryptoTable}>

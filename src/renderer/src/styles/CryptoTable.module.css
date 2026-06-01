@@ -5,7 +5,7 @@
   background-color: #1e2329;
   border-radius: 8px;
   padding: 16px;
-  height: 90%; /* Asegúrate de que su contenedor padre tenga un alto definido (como 100vh o px) */
+  height: 83vh; /* Asegúrate de que su contenedor padre tenga un alto definido (como 100vh o px) */
   border: 1px solid #2b3139;
   box-sizing: border-box; /* Evita que los paddings rompan el cálculo del alto */
 }
@@ -52,10 +52,16 @@
   padding-bottom: 8px;
 }
 
+.cryptoTable th,
+.cryptoTable td {
+  padding: 12px 8px; /* Un padding vertical constante mantiene la estructura firme */
+}
+
 .cryptoRow {
   border-bottom: 1px solid #2b3139;
   color: #eaecef;
   font-size: 14px;
+  height: 45px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -93,8 +99,8 @@
   color: #000;
 }
 .refreshButton{
-  background-color: #2b3139;
-  color: #eaecef;
+  background-color: #F0B90B;
+  color: #000;
   border: none;
   border-radius: 4px;
   padding: 4px 8px;
@@ -110,4 +116,20 @@
   padding: 4px 8px;
   cursor: pointer;
   font-size: 16px;
+}
+
+.searchInput {
+  background-color: #2b3139;
+  border: 1px solid #474f59;
+  border-radius: 4px;
+  color: #eaecef;
+  padding: 8px 12px;
+  width: 250px;
+  margin-right: 20px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #F0B90B;
 }

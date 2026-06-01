@@ -171,10 +171,8 @@ export const evaluateDropRisk = (
 
   return riskEvaluate;
 };
-
 export const calculateWhaleScore = (ratioData: any[]): number => {
   if (!ratioData || ratioData.length === 0) return 0;
-
   // Tomamos el registro más reciente (el último elemento del array)
   const latest = ratioData[ratioData.length - 1];
   
@@ -184,12 +182,12 @@ export const calculateWhaleScore = (ratioData: any[]): number => {
 
   // LÓGICA DE FILTRADO:
   // Si las posiciones Long superan el 55%, las ballenas ejercen presión alcista
-  if (longRatio >= 0.55) {
+  if (longRatio >= 0.65) {
     // Retornamos un número positivo proporcional a la fuerza alcista
     return Math.round((longRatio - 0.50) * 100); 
   } 
   // Si las posiciones Short superan el 55%, ejercen presión bajista
-  else if (shortRatio >= 0.55) {
+  else if (shortRatio >= 0.65) {
     // Retornamos un número negativo proporcional a la fuerza bajista
     return Math.round((shortRatio - 0.50) * -100);
   }

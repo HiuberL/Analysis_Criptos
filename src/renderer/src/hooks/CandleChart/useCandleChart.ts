@@ -7,6 +7,7 @@ import { IChartApi, ISeriesApi } from 'lightweight-charts';
 
 export const useCandleChart = (
     data,
+    predictData
 ) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);  
   const chartRef = useRef<IChartApi | null>(null);
@@ -14,7 +15,9 @@ export const useCandleChart = (
   const ema20SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
   const ema200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-
+  const predictionSeriesRefL = useRef<ISeriesApi<'Line' | 'Custom'>>(null);
+  const predictionSeriesRefS = useRef<ISeriesApi<'Line' | 'Custom'>>(null);
+  const predictionSeriesRefR = useRef<ISeriesApi<'Line' | 'Custom'>>(null);
   const utils = useCandleChartUtils();
   const effects = useCandleChartEffects(data,
     chartContainerRef,
@@ -23,7 +26,11 @@ export const useCandleChart = (
     ema20SeriesRef,
     ema50SeriesRef,
     ema200SeriesRef,
-    utils);
+    utils,
+    predictionSeriesRefL,
+    predictionSeriesRefR,
+    predictionSeriesRefS,
+    predictData);
   return {
     chartContainerRef: chartContainerRef
   };

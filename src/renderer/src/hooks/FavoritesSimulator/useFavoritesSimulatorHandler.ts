@@ -6,10 +6,12 @@ export const useFavoritesSimulatorHandler = (
   state: ReturnType<typeof useFavoritesSimulatorState>
 ) => {
   const {
-    globalAmount,
     setSimulation,
-    setGlobalAmount,
-    simulation
+    simulation,
+    setCustomAmounts,
+    customAmounts,
+    customMarketPrices,
+    setCustomMarketPrices
   }= state;
   const getCurrentMarketPrice = (symbol: string): number => {
     if (!rawSymbols || rawSymbols.length === 0) return 0;
@@ -24,49 +26,75 @@ export const useFavoritesSimulatorHandler = (
   };
 
   const handleStartGlobalSimulation = () => {
-    const amount = parseFloat(globalAmount);
-    if (amount <= 0 || isNaN(amount)) {
+    const amount = Number(Object.keys(customAmounts).length);
+    const favoritoTotal = Number(favorites.length);
+    console.log(amount);
+    if (amount === 0 || amount != favoritoTotal) {
       alert("Por favor introduce un monto válido mayor a 0.");
       return;
     }
 
     const pricesSnapshot: { [symbol: string]: number } = {};
+    const investSnapshot: { [symbol: string]: number } = {};
+    const marketSnapshot: { [symbol: string]: number } = {};
+
     let missingPrices = false;
+    let missingValue = false;
+    let missingMarket = false;
 
     favorites.forEach((symbol) => {
-      const price = getCurrentMarketPrice(symbol);
+      const price = Number(customMarketPrices[symbol]);
+      const invest = Number(customAmounts[symbol]);
+      const market  = getCurrentMarketPrice(symbol);
       if (price === 0) missingPrices = true;
       pricesSnapshot[symbol] = price;
+
+      if (invest === 0) missingValue = true;
+      investSnapshot[symbol] = invest;
+
+      if (market === 0) missingPrices = true;
+      marketSnapshot[symbol] = price;
+
     });
 
-    if (missingPrices && favorites.length > 0) {
+    if (missingMarket && favorites.length > 0) {
       alert("⚠️ Los precios del mercado se están actualizando. Espera un segundo.");
       return;
     }
 
     setSimulation({
-      investmentPerCoin: amount,
+      investmentPerCoin: investSnapshot,
       entryPrices: pricesSnapshot,
+      marketPrice: marketSnapshot,
       status: 'running'
     });
   };
 
   const handleResetGlobalSimulation = () => {
     setSimulation({
-      investmentPerCoin: 0,
-      entryPrices: {},
+      investmentPerCoin: {},
+      entryPrices: {},      
+      marketPrice:{},
       status: 'idle'
     });
-    setGlobalAmount('');
   };
 
   const isRunning = simulation.status === 'running';
+  const handleCustomAmountChange = (symbol: string, value: string) => {
+    setCustomAmounts(prev => ({ ...prev, [symbol]: value }));
+  };
+
+  const handleCustomPriceChange = (symbol: string, value: string) => {
+    setCustomMarketPrices(prev => ({ ...prev, [symbol]: value }));
+  };
 
 
   return {
     isRunning,
     handleResetGlobalSimulation,
     handleStartGlobalSimulation,
-    getCurrentMarketPrice
+    getCurrentMarketPrice,
+    handleCustomAmountChange,
+    handleCustomPriceChange
   }
 };

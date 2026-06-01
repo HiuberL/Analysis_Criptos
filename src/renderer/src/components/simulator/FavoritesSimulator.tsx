@@ -5,24 +5,27 @@ import { DashboardLayout } from '../DashBoard.Layout';
 import { Loading } from '../shared/Loading';
 import { useFavoritesSimulator } from '@renderer/hooks/FavoritesSimulator/useFavoritesSimulator';
 
-
-
 export const FavoritesSimulator: React.FC = () => {
   const { favorites, loadSymbols, rawSymbols, loading, setLoading } = useFavorites();
   const {
     isRunning,
-    globalAmount,
-    setGlobalAmount,
     handleStartGlobalSimulation,
     handleResetGlobalSimulation,
     getCurrentMarketPrice,
-    simulation
+    simulation,
+    handleCustomAmountChange,
+    handleCustomPriceChange,
+    customMarketPrices,
+    customAmounts
   } = useFavoritesSimulator(
-      setLoading,
-      loadSymbols,
-      rawSymbols,
-      favorites,
+    setLoading,
+    loadSymbols,
+    rawSymbols,
+    favorites,
+    
   );
+
+  // Manejadores para actualizar los diccionarios por cada moneda
 
   // Spinner de seguridad si la lista está vacía en el primer milisegundo
   if (loading && (!rawSymbols || rawSymbols.length === 0)) {
@@ -39,19 +42,12 @@ export const FavoritesSimulator: React.FC = () => {
         <div className={styles.simulatorHeader}>
           <div className={styles.titleArea}>
             <h2>Simulador Estático de Favoritos</h2>
-            <p>Fija una inversión única para cada una de tus monedas y evalúa el bloque manualmente.</p>
+            <p>Fija una inversión única para cada una de tus monedas o evalúa el bloque manualmente.</p>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             {!isRunning ? (
               <div className={styles.actionForm} style={{ display: 'flex', gap: '10px' }}>
-                <input
-                  type="number"
-                  placeholder="Monto por moneda (USD)"
-                  value={globalAmount}
-                  onChange={(e) => setGlobalAmount(e.target.value)}
-                  className={styles.amountInput}
-                />
                 <button onClick={handleStartGlobalSimulation} className={styles.playButton}>
                   ▶ Iniciar Bloque
                 </button>
@@ -83,19 +79,17 @@ export const FavoritesSimulator: React.FC = () => {
           /* Grid de Cards */
           <div className={styles.cardsGrid}>
             {favorites.map((symbol) => {
-              const currentPrice = getCurrentMarketPrice(symbol);
+              const realMarketPrice = getCurrentMarketPrice(symbol);
               const entryPrice = simulation.entryPrices[symbol] || 0;
-              const investment = simulation.investmentPerCoin;
-
+              const investment = simulation.investmentPerCoin[symbol]||0;
               let pnl = 0;
               let pnlPercent = 0;
               let currentAssetValue = investment;
-
               if (isRunning && entryPrice > 0) {
                 const tokensComprados = investment / entryPrice;
-                currentAssetValue = tokensComprados * currentPrice;
+                currentAssetValue = tokensComprados * realMarketPrice;
                 pnl = currentAssetValue - investment;
-                pnlPercent = (pnl / investment) * 100;
+                pnlPercent = investment > 0 ? (pnl / investment) * 100 : 0;
               }
 
               const isWinner = pnl >= 0;
@@ -106,15 +100,50 @@ export const FavoritesSimulator: React.FC = () => {
                   <div className={styles.cardTop}>
                     <span className={styles.symbolName}>{symbol}</span>
                     <span className={styles.basePrice}>
-                      Mercado: {currentPrice > 0 ? `$${currentPrice.toFixed(8)}` : "Cargando..."}
+                      Mercado Real: {realMarketPrice > 0 ? `$${realMarketPrice.toFixed(8)}` : "Cargando..."}
                     </span>
                   </div>
 
+                  {/* Inputs modificables mostrados únicamente ANTES de iniciar la simulación */}
                   {!isRunning ? (
-                    <div style={{ color: '#848e9c', fontSize: '13px', textAlign: 'center', padding: '15px 0' }}>
-                      Esperando inicio de bloque...
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px 0' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: '#848e9c' }}>Inversión Individual (USD):</label>
+                        <input
+                          type="number"
+                          value={customAmounts[symbol] || ''}
+                          onChange={(e) => handleCustomAmountChange(symbol, e.target.value)}
+                          style={{
+                            backgroundColor: '#1e2329',
+                            color: '#eaecef',
+                            border: '1px solid #2b3139',
+                            borderRadius: '4px',
+                            padding: '6px 10px',
+                            fontSize: '13px'
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '11px', color: '#848e9c' }}>Modificar Precio Mercado Inicial (USD):</label>
+                        <input
+                          type="number"
+                          placeholder={`Actual: $${realMarketPrice.toFixed(8)}`}
+                          value={customMarketPrices[symbol] || ''}
+                          onChange={(e) => handleCustomPriceChange(symbol, e.target.value)}
+                          style={{
+                            backgroundColor: '#1e2329',
+                            color: '#eaecef',
+                            border: '1px solid #2b3139',
+                            borderRadius: '4px',
+                            padding: '6px 10px',
+                            fontSize: '13px'
+                          }}
+                        />
+                      </div>
                     </div>
                   ) : (
+                    /* Vista de Resultados en Simulación Activa */
                     <div>
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Precio de Entrada:</span>
@@ -123,14 +152,21 @@ export const FavoritesSimulator: React.FC = () => {
                         </span>
                       </div>
                       <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Inversión Fija:</span>
+                        <span className={styles.infoLabel}>Inversión Utilizada:</span>
                         <span className={styles.infoValue}>${investment.toFixed(8)}</span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Precio Mercado:</span>
+                        <span className={styles.infoValue}>${realMarketPrice.toFixed(8)}</span>
                       </div>
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Valoración Manual:</span>
                         <span className={styles.infoValue}>${currentAssetValue.toFixed(8)}</span>
                       </div>
-
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>Ganancia:</span>
+                        <span className={styles.infoValue}>${pnl.toFixed(8)}</span>
+                      </div>
                       <hr className={styles.divider} />
 
                       <div className={`${styles.statusBadge} ${isWinner ? styles.badgeWinner : styles.badgeLoser}`}>
