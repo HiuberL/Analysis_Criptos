@@ -61,7 +61,7 @@ export const TradeInfoPanel: React.FC<TradeInfoProps> = ({ levels, technicalLeve
             ) : whaleTrack < 0 ? (
               <span>🔴 (Compras: +${whaleBuyVolume.toFixed(2)} Ventas:-${whaleSellVolume.toFixed(2)})</span>
             ) : (
-              <span>🟡 Sin Moviiento: (${whaleTrack.toFixed(2)})</span>
+              <span>🟡 Sin Movimiento: (${whaleTrack.toFixed(2)})</span>
             )}</strong>
 
             <strong style={{ marginTop: '5px', fontSize: '14px', fontWeight: 'bold' }}>

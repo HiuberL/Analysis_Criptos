@@ -19,6 +19,7 @@ export const DEFAULT_CONFIG: ConfigItem[] = [
   { label: "Máximo por Página", dato: "paginacion", type:"number", object:"input", options:[], helptext:"Total de filas por página en consultas", value: "25" },
   { label: "Ordenar Principal", dato: "sort", type:"text", object:"dropdown", options:["cambio","volumen","precio"], helptext:"Ordenamiento de informacion en ventana principal", value: "precio" },
   { label: "Ordenes Ballenas", dato: "whaleVolume", type:"number", object:"input", options:[], helptext:"Total de ordenes analizadas para verificar flujo (Historico)", value: "1000" },
+  { label: "Url Predictiva", dato: "urlPredict", type:"text", object:"input", options:[], helptext:"Url de cálculo predictivo con IA", value: "http://127.0.0.1:8000/api/predict" },
 
 ];
 

@@ -1,6 +1,5 @@
 import { GlobalTrack, Indicators, MultipleProjections, PredictionPoint, SupportResistanceLevels } from "@renderer/interfaces/indicators.interface";
 
-
 export const generatePriceProjection = (
   klines: any[],
   currentPrice: number,
@@ -14,7 +13,8 @@ export const generatePriceProjection = (
   periodsToPredict: number = 15
 ): MultipleProjections => {
   
-  if (!klines || klines.length === 0 || isNaN(currentPrice)) {
+  // 1. Defensas de datos corruptos o insuficientes para el entrenamiento de la IA
+  if (!klines || klines.length < 15 || isNaN(currentPrice)) {
     return { sentimental: [], chartista: [], realista: [] };
   }
 
@@ -38,7 +38,39 @@ export const generatePriceProjection = (
   // Detectar la forma geométrica antes de empezar
   const detectedPattern = detectChartPattern(klines);
 
-  // Lógica Base Estándar de Tendencia e Indicadores
+  // =========================================================================
+  // 🧠 MOTOR DE INTELIGENCIA ARTIFICIAL (Regresión Lineal por Mínimos Cuadrados)
+  // =========================================================================
+  // La IA analiza las últimas 45 velas para aprender la correlación temporal del momentum.
+  const aiSampleSize = Math.min(45, klines.length - 1);
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
+
+  for (let i = klines.length - aiSampleSize; i < klines.length; i++) {
+    const currentC = klines[i];
+    const prevC = klines[i - 1];
+    
+    const cPrice = Array.isArray(currentC) ? parseFloat(currentC[4]) : currentC.close;
+    const pPrice = Array.isArray(prevC) ? parseFloat(prevC[4]) : prevC.close;
+    
+    if (isNaN(cPrice) || isNaN(pPrice)) continue;
+
+    const x = i - (klines.length - aiSampleSize); // Índice temporal relativo (Feature X)
+    const y = cPrice - pPrice;                    // Delta de cambio real (Feature Y)
+
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+
+  const aiDenominator = (aiSampleSize * sumXX - sumX * sumX);
+  // Pendiente matemática real extraída de la inercia actual de Binance
+  const aiLearpedSlope = aiDenominator !== 0 ? (aiSampleSize * sumXY - sumX * sumY) / aiDenominator : 0;
+
+  // Lógica Base Estándar de Tendencia Cualitativa (Se usa para sesgar los vectores entrenados)
   let trendBias = 0;
   const trendNormalized = trend.toLowerCase();
   if (trendNormalized.includes('fuerte alcista')) trendBias = 1.2;
@@ -69,7 +101,7 @@ export const generatePriceProjection = (
   if (counted > 0) baseVolatility = (totalDiff / counted);
 
   // ==========================================
-  // 🔮 CONSTRUCTOR DE VECTORES
+  // 🔮 CONSTRUCTOR DE VECTORES ENRIQUECIDO POR IA
   // ==========================================
   const buildVector = (profile: 'sentimental' | 'chartista' | 'realista'): PredictionPoint[] => {
     let trendBiasProfile = trendBias;
@@ -80,6 +112,9 @@ export const generatePriceProjection = (
     let volatilityMultiplier = 0.30;
     let chartEffectMultiplier = 1.0; 
     let breakDirection = 1; // Para simular rupturas geométricas alternas
+    
+    // Peso de la pendiente aprendida por Inteligencia Artificial
+    let aiSlopeWeight = 0.5; 
 
     switch (profile) {
       case 'sentimental':
@@ -87,29 +122,25 @@ export const generatePriceProjection = (
         futuresMomentumProfile *= 1.3;
         weightSpot = 0.15; weightFutures = 0.85;
         attenuationFactor = 0.06; volatilityMultiplier = 0.45;
+        aiSlopeWeight = 0.2; // El sentimiento ignora la rigidez de la IA matemática e histérica
         break;
 
       case 'chartista':
-        // 🔥 CONFIGURACIÓN DE ANALISTA DE FORMAS:
         weightSpot = 0.40; weightFutures = 0.60;
         volatilityMultiplier = 0.28;
-        attenuationFactor = 0.10; // Permite arcos extendidos simulando proyecciones de figuras
+        attenuationFactor = 0.10; 
+        aiSlopeWeight = 0.6; // Alta confluencia con la inercia lineal
 
-        // Modificamos el sesgo basándonos puramente en la "forma geométrica" detectada
         if (detectedPattern === 'DobleTecho') {
-          // Un analista sabe que el doble techo es bajista
           trendBiasProfile = -1.8; 
           futuresMomentumProfile -= 1.0;
-          chartEffectMultiplier = 1.5; // Agudiza la caída
+          chartEffectMultiplier = 1.5; 
         } else if (detectedPattern === 'DobleSuelo') {
-          // Un analista sabe que el doble suelo es alcista
           trendBiasProfile = 1.8;
           futuresMomentumProfile += 1.0;
-          chartEffectMultiplier = 1.5; // Agudiza el rebote
+          chartEffectMultiplier = 1.5; 
         } else if (detectedPattern === 'CompresionTriangular') {
-          // Los triángulos comprimen el precio y revientan con fuerza hacia un lado.
-          // Si el ratio de ballenas empuja arriba, proyectamos una ruptura alcista violenta masiva
-          attenuationFactor = 0.04; // Se desboca la línea imitando un "breakout"
+          attenuationFactor = 0.04; 
           chartEffectMultiplier = 1.8;
           breakDirection = futuresMomentum > 0 ? 1.4 : -1.4;
         } else if (detectedPattern === 'CanalAlcista') {
@@ -122,10 +153,18 @@ export const generatePriceProjection = (
       case 'realista':
         weightSpot = 0.35; weightFutures = 0.65;
         attenuationFactor = 0.12; volatilityMultiplier = 0.32;
+        aiSlopeWeight = 0.8; // El perfil realista confía firmemente en el sesgo regresivo de la IA
         break;
     }
 
-    let baseDirection = (trendBiasProfile + emaSignal) + (spotPressure * weightSpot) + (futuresMomentumProfile * weightFutures);
+    // Integramos el coeficiente predictivo lineal (aiLearnedSlope normalizado sobre volatilidad base)
+    const aiInertiaFactor = baseVolatility > 0 ? (aiLearpedSlope / baseVolatility) : 0;
+    
+    // Combinamos las fuerzas cuantitativas clásicas junto a la neurona lineal entrenada
+    let baseDirection = (trendBiasProfile + GlenSign(emaSignal)) + (spotPressure * weightSpot) + (futuresMomentumProfile * weightFutures);
+    
+    // Mezcla equilibrada: Fórmula Clásica + Dirección sugerida por IA
+    baseDirection = (baseDirection * (1 - aiSlopeWeight)) + (aiInertiaFactor * aiSlopeWeight);
     
     // Multiplicamos por la fuerza o dirección de las figuras del análisis chartista
     baseDirection *= chartEffectMultiplier * (profile === 'chartista' ? breakDirection : 1);
@@ -166,9 +205,9 @@ export const generatePriceProjection = (
           else if ((projectedPrice - technicalLevels.support1) < avgVolatility) delta *= 0.7;
         }
       }
-      // El perfil chartista asume "Ruptura de figuras" (Breakouts), por lo que si hay compresión o patrones de suelo/techo, perfora los niveles con fuerza
+      // El perfil chartista asume "Ruptura de figuras" (Breakouts)
       else if (profile === 'chartista' && (detectedPattern === 'CompresionTriangular' || detectedPattern === 'DobleSuelo' || detectedPattern === 'DobleTecho')) {
-        delta *= 1.2; // Acelera el paso ignorando parcialmente los límites estáticos porque la forma "ya rompió"
+        delta *= 1.2; 
       }
 
       projectedPrice += delta;
@@ -181,22 +220,22 @@ export const generatePriceProjection = (
     return vector;
   };
 
+  // Función de apoyo interna para mantener señales limpias
+  function GlenSign(val: number): number { return isNaN(val) ? 0 : val; }
+
   return {
     sentimental: buildVector('sentimental'),
-    chartista: buildVector('chartista'), // Retorna la curva basada en la forma geométrica
+    chartista: buildVector('chartista'), 
     realista: buildVector('realista')
   };
 };
 
-
-// 📐 DETECTOR DE FORMAS GEOMÉTRICAS (Chartismo)
-const detectChartPattern = (klines: any[]): 'DobleTecho' | 'DobleSuelo' | 'CompresionTriangular' | 'CanalAlcista' | 'CanalBajista' | 'Ninguno' => {
+// 📐 DETECTOR DE FORMAS GEOMÉTRICAS (Se mantiene intacto abajo)
+export const detectChartPattern = (klines: any[]): 'DobleTecho' | 'DobleSuelo' | 'CompresionTriangular' | 'CanalAlcista' | 'CanalBajista' | 'Ninguno' => {
   if (klines.length < 30) return 'Ninguno';
 
-  // Extraemos los precios de cierre recientes para buscar "valles" y "crestas"
   const prices = klines.slice(-30).map(c => Array.isArray(c) ? parseFloat(c[4]) : parseFloat(c.close));
   
-  // Encontrar picos (máximos y mínimos locales)
   const peaks: number[] = [];
   const valleys: number[] = [];
   
@@ -212,24 +251,20 @@ const detectChartPattern = (klines: any[]): 'DobleTecho' | 'DobleSuelo' | 'Compr
 
   if (!lastPeak || !prevPeak || !lastValley || !prevValley) return 'Ninguno';
 
-  // 1. Forma de "Doble Techo" (M-Pattern) -> Resistencia psicológica fuerte, caída inminente
   const peakDifference = Math.abs(lastPeak - prevPeak) / prevPeak;
   if (peakDifference < 0.002 && prices[prices.length - 1] < lastPeak) {
     return 'DobleTecho';
   }
 
-  // 2. Forma de "Doble Suelo" (W-Pattern) -> Soporte psicológico fuerte, rebote inminente
   const valleyDifference = Math.abs(lastValley - prevValley) / prevValley;
   if (valleyDifference < 0.002 && prices[prices.length - 1] > lastValley) {
     return 'DobleSuelo';
   }
 
-  // 3. Forma de "Compresión o Triángulo Simétrico" -> Picos cada vez más bajos, valles cada vez más altos
   if (lastPeak < prevPeak && lastValley > prevValley) {
     return 'CompresionTriangular';
   }
 
-  // 4. Forma de "Canal Tendencial" -> Picos y valles subiendo juntos o bajando juntos
   if (lastPeak > prevPeak && lastValley > prevValley) return 'CanalAlcista';
   if (lastPeak < prevPeak && lastValley < prevValley) return 'CanalBajista';
 

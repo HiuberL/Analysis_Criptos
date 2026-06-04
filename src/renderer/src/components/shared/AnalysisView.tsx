@@ -4,7 +4,7 @@ import { CandleChart } from './CandleChart';
 import { TradeInfoPanel } from '../shared/TradeInfo';
 import { useAnalysisView } from '@renderer/hooks/AnalysisView/useAnalysisView';
 import { getPricePredictionScore } from '@renderer/utils/Indicators';
-import { generatePriceProjection } from '@renderer/utils/predictionEngine';
+import { generateAIPricreProjection } from '@renderer/services/predictor-api.services';
 
 interface AnalysisViewProps {
   symbol: string;
@@ -26,29 +26,13 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
     whaleSellVolume,
     whaleTrack,
     globalTrack,
-    globalTrackDetail
+    predictionData
   } = useAnalysisView(symbol,styles);
 
   if (loading) return <SubLoading message={`Analizando ${symbol} (${timeframe})...`} />;
   if (!data) return <p className={styles.message}>No hay datos suficientes para analizar {symbol}.</p>;
   const resume = getPricePredictionScore(data.rsi,data.currentPrice,data.ema200,whaleTrack);
-  const futrProjection = generatePriceProjection(
-    rawKlines,
-    data.currentPrice,
-    {
-      rsi: data.rsi,
-      volume: data.volume,
-      ema20: data.ema20,
-      ema50: data.ema50,
-      ema200: data.ema200
-    },
-    pivotLevels,
-    globalTrackDetail,
-    whaleTrack,
-    scoreRisk.score?.total,
-    data.trend,
-    timeframe
-  );
+
   return (
     <div className={styles.container}>
       <div className={styles.headerRow}>
@@ -71,7 +55,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ symbol }) => {
       </div>
 
       <div className={styles.chartWrapper} style={{ marginBottom: '20px', height: '400px' }}>
-        <CandleChart data={rawKlines} predict={futrProjection} />
+        <CandleChart data={rawKlines} predict={predictionData} />
       </div>
 
       {/* Panel integrado */}

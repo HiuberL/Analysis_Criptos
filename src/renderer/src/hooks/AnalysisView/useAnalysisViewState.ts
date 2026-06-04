@@ -1,5 +1,5 @@
 import { SymbolInfo } from '@renderer/interfaces/binance.interface';
-import { AnalysisResultData } from '@renderer/interfaces/indicators.interface';
+import { AnalysisResultData, MultipleProjections } from '@renderer/interfaces/indicators.interface';
 import { useState } from 'react';
 
 export const useAnalysisViewState = () => {
@@ -13,7 +13,7 @@ export const useAnalysisViewState = () => {
   const [tradeLevels, setTradeLevels] = useState<any>(null);
   const [scoreRisk, setScoreRisk] = useState<any>(null);
   const [pivotLevels, setPivotLevels] = useState<any>(null);
-  
+  const [predictionData, setPredictionData] = useState<MultipleProjections | null>(null);
 
   return {
     symbols, setSymbols,
@@ -25,6 +25,7 @@ export const useAnalysisViewState = () => {
     data, setData,
     tradeLevels, setTradeLevels,
     scoreRisk, setScoreRisk,
-    pivotLevels, setPivotLevels
+    pivotLevels, setPivotLevels,
+    predictionData,setPredictionData
   };
 };

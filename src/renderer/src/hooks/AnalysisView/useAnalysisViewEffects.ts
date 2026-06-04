@@ -4,12 +4,15 @@ import { fetchKlines, subscribeToKlines } from '@renderer/services/binance-api.s
 import { calculatePivotSupports, calculateTrend } from '@renderer/utils/AnalisisResult';
 import { evaluateDropRisk, getTradeLevels } from '@renderer/utils/Indicators';
 import { useConfiguration } from '../Configuration/useConfiguration';
+import { generateAIPricreProjection } from '@renderer/services/predictor-api.services';
 
 export const useAnalysisViewEffects = (
   symbol: string,
   state: ReturnType<typeof useAnalysisViewState>,
   whaleBuyRatioRaw: number,
-  config: ReturnType<typeof useConfiguration>
+  config: ReturnType<typeof useConfiguration>,
+  globalTrackDetail: any,
+  whaleTrack: any
 ) => {
   const {
     setLoading,
@@ -18,7 +21,12 @@ export const useAnalysisViewEffects = (
     setData, 
     setTradeLevels,
     setScoreRisk,
-    setPivotLevels
+    setPivotLevels,
+    rawKlines,
+    data,
+    pivotLevels,
+    scoreRisk,
+    setPredictionData
   } = state;
 
   const {
@@ -93,5 +101,51 @@ export const useAnalysisViewEffects = (
       if (cleanupWebSocket) cleanupWebSocket();
     };
   }, [AnalysisCalculateFetch]); 
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAndPredict = async () => {
+      // 1. Defensa estricta para evitar llamar a la IA sin datos listos
+      if (!rawKlines || rawKlines.length === 0 || !data?.currentPrice) return;
+
+      try {
+        // 2. 🔥 INVOCACIÓN ASÍNCRONA CORRECTA
+        const dataReceived = await generateAIPricreProjection(
+          getConfigValue("urlPredict")?? "",
+          rawKlines,
+          data.currentPrice,
+          {
+            rsi: data.rsi,
+            volume: data.volume,
+            ema20: data.ema20,
+            ema50: data.ema50,
+            ema200: data.ema200
+          },       // { rsi, ema200 }
+          pivotLevels,  // Soportes/Resistencias Pivot
+          globalTrackDetail,      // Datos de Ratios
+          whaleTrack,      // Métrica numérica +/- de ballenas
+          scoreRisk,        // { score: X }
+          data.trend,            // "Alcista" | "Bajista" | etc.
+          timeframe,        // '15m' | '1h' | '1d' | '1M'
+          15                // períodos a predecir
+        );
+
+        // 3. Setear el estado solo si el componente sigue montado en pantalla
+        if (isMounted) {
+          setPredictionData(dataReceived);
+        }
+      } catch (error) {
+        console.error("Error cargando la proyección de la IA:", error);
+      }
+    };
+
+    fetchAndPredict();
+
+    return () => {
+      isMounted = false; // Cleanup para evitar condiciones de carrera
+    };
+  }, [rawKlines, timeframe, data, whaleTrack]);
+
   return { AnalysisCalculateFetch };
 };
